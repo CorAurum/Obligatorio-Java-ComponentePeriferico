@@ -1,8 +1,4 @@
-ENV PGHOST=${PGHOST}
-ENV PGPORT=${PGPORT}
-ENV PGDATABASE=${PGDATABASE}
-ENV PGUSER=${PGUSER}
-ENV PGPASSWORD=${PGPASSWORD}
+
 
 # Stage 1: Build with Maven using Java 21
 FROM maven:3.9.4-eclipse-temurin-21 AS builder
@@ -31,6 +27,11 @@ WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
 
 # Allow dynamic port assignment (e.g., for Railway)
+ENV PGHOST=${PGHOST}
+ENV PGPORT=${PGPORT}
+ENV PGDATABASE=${PGDATABASE}
+ENV PGUSER=${PGUSER}
+ENV PGPASSWORD=${PGPASSWORD}
 ENV PORT=8080
 EXPOSE 8080
 
