@@ -35,5 +35,7 @@ ENV PGPASSWORD=${PGPASSWORD}
 ENV PORT=8080
 EXPOSE 8080
 
+RUN printenv | grep PG
+
 # Command to run the app
 CMD ["java", "-jar", "app.jar"]
