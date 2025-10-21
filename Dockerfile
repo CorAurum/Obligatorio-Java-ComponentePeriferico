@@ -1,28 +1,31 @@
 # Stage 1: Build with Maven using Java 21
 FROM maven:3.9.4-eclipse-temurin-21 AS builder
 
+# Set working directory inside the container
 WORKDIR /app
 
-# Copy the pom.xml and download dependencies first (for better caching)
-COPY pom.xml .
+# Copy pom.xml and download dependencies (for better build caching)
+COPY backend/pom.xml .
 RUN mvn dependency:go-offline
 
 # Now copy the source code
-COPY src ./src
+COPY backend/src ./src
 
-# Package the app (no tests for speed)
+# Package the application (skip tests for faster build)
 RUN mvn clean package -DskipTests
 
 # Stage 2: Run the JAR
 FROM eclipse-temurin:21-jdk-alpine
 
+# Set working directory inside the container
 WORKDIR /app
 
-# Copy the built jar from the previous stage
+# Copy the built JAR file from the builder stage
 COPY --from=builder /app/target/*.jar app.jar
 
-# Support dynamic port setting for Railway
+# Allow dynamic port assignment (e.g., for Railway)
 ENV PORT=8080
 EXPOSE 8080
 
+# Command to run the app
 CMD ["java", "-jar", "app.jar"]
