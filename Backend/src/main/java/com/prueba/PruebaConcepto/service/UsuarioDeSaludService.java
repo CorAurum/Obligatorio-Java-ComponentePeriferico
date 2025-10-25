@@ -66,7 +66,7 @@ public class UsuarioDeSaludService {
 
     private void enviarMetadato(UsuarioDeSalud usuario) {
         // URL del endpoint al que vas a enviar los datos del usuario
-        String url = "https://central.enbondi.xyz/api/usuarioSalud/externo"; // ⚠️ cambia esto por tu URL real
+        String url = "https://backend.web.elasticloud.uy/api/usuarioSalud/externo"; // ⚠️ cambia esto por tu URL real
 
         // Crear el payload (podés usar tu DTO o un DTO separado)
         UsuarioDeSaludMetadatoDto metadato = new UsuarioDeSaludMetadatoDto(
