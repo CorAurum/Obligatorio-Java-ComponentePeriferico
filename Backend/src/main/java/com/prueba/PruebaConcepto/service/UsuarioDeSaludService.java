@@ -44,6 +44,9 @@ public class UsuarioDeSaludService {
         return toDto(saved);
     }
 
+    public List<UsuarioDeSaludDto> listarUsuarios() {
+        return repo.findAll().stream().map(this::toDto).collect(Collectors.toList());
+    }
 
     private UsuarioDeSaludDto toDto(UsuarioDeSalud u) {
         return new UsuarioDeSaludDto(
