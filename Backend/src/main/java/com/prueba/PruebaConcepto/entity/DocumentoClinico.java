@@ -17,6 +17,8 @@ public class DocumentoClinico {
 
     private LocalDateTime fechaCreacion;
 
+    private String area;
+
     //Instrucciones de seguimiento
     private LocalDateTime fechaProximaConsultaRecomendada;
     private LocalDateTime fechaProximaConsultaConfirmada;

@@ -9,5 +9,6 @@ public record UsuarioDeSaludDto(
         LocalDate fechaNacimiento,
         String email,
         String telefono,
-        LocalDate fechaRegistro
+        LocalDate fechaRegistro,
+        String direccion
 ) {}

@@ -13,11 +13,11 @@ public class UsuarioDeSalud {
 
     @Id
     private String cedulaIdentidad;
-
+    private String email;
     private String nombre;
     private String apellido;
-    private LocalDate fechaNacimiento;
-    private String email;
+    private String direccion;
     private String telefono;
+    private LocalDate fechaNacimiento;
     private LocalDate fechaRegistro;
 }

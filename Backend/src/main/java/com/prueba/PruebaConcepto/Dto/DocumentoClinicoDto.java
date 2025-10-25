@@ -5,6 +5,7 @@ import java.util.List;
 
 public record DocumentoClinicoDto(
         Long idDocumento,
+        String area,
         LocalDateTime fechaCreacion,
         LocalDateTime fechaProximaConsultaRecomendada,
         LocalDateTime fechaProximaConsultaConfirmada,
