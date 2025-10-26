@@ -11,5 +11,6 @@ public record DocumentoMetadatoDto(
         String nombreProfesional,
         @JsonProperty("centroSaludId")
         Long idClinica,
+        @JsonProperty("usuarioDeSaludId")
         String cedulaUsuario
 ) {}
