@@ -1,6 +1,8 @@
 package com.prueba.PruebaConcepto.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.prueba.PruebaConcepto.Dto.UsuarioDeSaludDto;
 import com.prueba.PruebaConcepto.Dto.UsuarioDeSaludMetadatoDto;
 import com.prueba.PruebaConcepto.entity.UsuarioDeSalud;
@@ -64,6 +66,7 @@ public class UsuarioDeSaludService {
 
 
     // FUNCIONES PARA INTERACTUAR CON EL COMPONENTE CENTRAL
+    // FUNCIONES PARA INTERACTUAR CON EL COMPONENTE CENTRAL
     private void enviarMetadato(UsuarioDeSalud usuario) {
         // URL del endpoint
         String url = "https://backend.web.elasticloud.uy/api/usuarioSalud/externo";
@@ -81,9 +84,12 @@ public class UsuarioDeSaludService {
         );
 
         try {
-            // Transformar a JSON explícitamente para loggear
+            // Configurar ObjectMapper para enviar fechas como strings ISO
             ObjectMapper mapper = new ObjectMapper();
-            mapper.findAndRegisterModules(); // para manejar LocalDate y LocalDateTime
+            mapper.registerModule(new JavaTimeModule()); // permite serializar LocalDate y LocalDateTime
+            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // evita que se serialicen como arrays
+
+            // Convertir DTO a JSON
             String jsonPayload = mapper.writeValueAsString(metadato);
 
             // LOG para ver exactamente qué se está enviando
@@ -94,6 +100,7 @@ public class UsuarioDeSaludService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 
+            // Construir la request con JSON como String
             HttpEntity<String> request = new HttpEntity<>(jsonPayload, headers);
 
             // Enviar la POST request
@@ -104,8 +111,10 @@ public class UsuarioDeSaludService {
             } else {
                 System.out.println("⚠️ No se pudo enviar el metadato. Código: " + response.getStatusCode());
             }
+
         } catch (Exception e) {
             System.err.println("❌ Error al enviar metadato del usuario: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
