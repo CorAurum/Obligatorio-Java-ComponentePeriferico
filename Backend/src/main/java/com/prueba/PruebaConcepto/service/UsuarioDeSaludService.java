@@ -1,5 +1,6 @@
 package com.prueba.PruebaConcepto.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.prueba.PruebaConcepto.Dto.UsuarioDeSaludDto;
 import com.prueba.PruebaConcepto.Dto.UsuarioDeSaludMetadatoDto;
 import com.prueba.PruebaConcepto.entity.UsuarioDeSalud;
@@ -63,12 +64,11 @@ public class UsuarioDeSaludService {
 
 
     // FUNCIONES PARA INTERACTUAR CON EL COMPONENTE CENTRAL
-
     private void enviarMetadato(UsuarioDeSalud usuario) {
-        // URL del endpoint al que vas a enviar los datos del usuario
-        String url = "https://backend.web.elasticloud.uy/api/usuarioSalud/externo"; // ⚠️ cambia esto por tu URL real
+        // URL del endpoint
+        String url = "https://backend.web.elasticloud.uy/api/usuarioSalud/externo";
 
-        // Crear el payload (podés usar tu DTO o un DTO separado)
+        // Crear el payload
         UsuarioDeSaludMetadatoDto metadato = new UsuarioDeSaludMetadatoDto(
                 usuario.getCedulaIdentidad(),
                 usuario.getEmail(),
@@ -80,15 +80,22 @@ public class UsuarioDeSaludService {
                 usuario.getFechaRegistro()
         );
 
-        // Crear RestTemplate y headers
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        // Crear la request
-        HttpEntity<UsuarioDeSaludMetadatoDto> request = new HttpEntity<>(metadato, headers);
-
         try {
+            // Transformar a JSON explícitamente para loggear
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.findAndRegisterModules(); // para manejar LocalDate y LocalDateTime
+            String jsonPayload = mapper.writeValueAsString(metadato);
+
+            // LOG para ver exactamente qué se está enviando
+            System.out.println("DEBUG JSON que se va a enviar al backend: " + jsonPayload);
+
+            // Crear RestTemplate y headers
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<String> request = new HttpEntity<>(jsonPayload, headers);
+
             // Enviar la POST request
             ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
 
