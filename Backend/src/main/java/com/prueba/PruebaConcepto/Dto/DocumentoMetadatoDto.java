@@ -5,6 +5,6 @@ public record DocumentoMetadatoDto(
         String area,
         String fechaCreacion,
         String nombreProfesional,
-        Long idClinica,
+        String idClinica,
         String cedulaUsuario
 ) {}

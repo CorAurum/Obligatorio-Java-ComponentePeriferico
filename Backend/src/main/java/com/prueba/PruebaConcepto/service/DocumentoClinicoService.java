@@ -135,7 +135,7 @@ public class DocumentoClinicoService {
                 documento.getArea(),
                 documento.getFechaCreacion().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                 documento.getProfesional().getNombre(),
-                documento.getClinica().getId(),
+                documento.getClinica().getCodigoClinica(),
                 documento.getUsuario().getCedulaIdentidad()
         );
 
