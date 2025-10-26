@@ -9,6 +9,7 @@ public record DocumentoMetadatoDto(
         String area,
         String fechaCreacion,
         String nombreProfesional,
+        @JsonProperty("CentroSaludId")
         String idClinica,
         String cedulaUsuario
 ) {}
