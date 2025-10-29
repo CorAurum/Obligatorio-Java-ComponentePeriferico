@@ -87,7 +87,9 @@ public class DocumentoClinicoService {
         return toDto(saved);
     }
 
-
+    public DocumentoClinico obtenerPorId(Long id) {
+        return docRepo.findById(id).orElse(null);
+    }
 
     public void eliminarDocumento(Long id) {
         if (!docRepo.existsById(id)) throw new RuntimeException("Documento no encontrado");
@@ -132,10 +134,10 @@ public class DocumentoClinicoService {
         // Crear el payload
         DocumentoMetadatoDto metadato = new DocumentoMetadatoDto(
                 documento.getIdDocumento(),
-                documento.getArea(),
-                documento.getFechaCreacion().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-                documento.getProfesional().getNombre(),
+                documento.getProfesional().getIdProfesional(),
+                documento.getUsuario().getIdUsuario(),
                 documento.getClinica().getId(),
+                documento.getArea(),
                 documento.getUsuario().getCedulaIdentidad()
         );
 

@@ -1,6 +1,7 @@
 package com.prueba.PruebaConcepto.controller;
 
 import com.prueba.PruebaConcepto.Dto.DocumentoClinicoDto;
+import com.prueba.PruebaConcepto.entity.DocumentoClinico;
 import com.prueba.PruebaConcepto.service.DocumentoClinicoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +34,16 @@ public class DocumentoClinicoController {
     @GetMapping("/list")
     public ResponseEntity<List<DocumentoClinicoDto>> listAll() {
         return ResponseEntity.ok(documentoService.listarTodos());
+    }
+
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DocumentoClinico> getDocumentoCompleto(@PathVariable Long id) {
+        DocumentoClinico documento = documentoService.obtenerPorId(id);
+        if (documento == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(documento);
     }
 
 }

@@ -12,6 +12,7 @@ import java.time.LocalDate;
 public class UsuarioDeSalud {
 
     @Id
+    private int idUsuario;
     private String cedulaIdentidad;
     private String email;
     private String nombre;
