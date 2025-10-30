@@ -12,8 +12,8 @@ import java.time.LocalDate;
 public class UsuarioDeSalud {
 
     @Id
-    private int idUsuario;
     private String cedulaIdentidad;
+
     private String email;
     private String nombre;
     private String apellido;
@@ -22,6 +22,4 @@ public class UsuarioDeSalud {
     private LocalDate fechaNacimiento;
     private LocalDate fechaRegistro;
 
-    public UsuarioDeSalud(String s, String email, String nombre, String apellido, String direccion, String telefono, LocalDate localDate, LocalDate now) {
-    }
 }

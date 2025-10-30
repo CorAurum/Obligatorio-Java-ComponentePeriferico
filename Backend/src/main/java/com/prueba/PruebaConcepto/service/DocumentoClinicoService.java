@@ -135,7 +135,7 @@ public class DocumentoClinicoService {
         DocumentoMetadatoDto metadato = new DocumentoMetadatoDto(
                 documento.getIdDocumento(),
                 documento.getProfesional().getIdProfesional(),
-                documento.getUsuario().getIdUsuario(),
+                documento.getUsuario().getCedulaIdentidad(),
                 documento.getClinica().getId(),
                 documento.getArea(),
                 documento.getUsuario().getCedulaIdentidad()

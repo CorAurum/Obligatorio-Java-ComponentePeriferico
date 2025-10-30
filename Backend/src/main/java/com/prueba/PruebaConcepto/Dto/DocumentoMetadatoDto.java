@@ -7,7 +7,7 @@ public record DocumentoMetadatoDto(
         @JsonProperty("idDocumentoOrigen")
         Long idDocumento,
         Long IdProfesional,
-        int IdUsuario,
+        String IdUsuario,
         @JsonProperty("centroSaludId")
         Long idClinica,
         String area,
