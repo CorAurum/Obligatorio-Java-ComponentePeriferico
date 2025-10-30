@@ -21,4 +21,7 @@ public class UsuarioDeSalud {
     private String telefono;
     private LocalDate fechaNacimiento;
     private LocalDate fechaRegistro;
+
+    public UsuarioDeSalud(String s, String email, String nombre, String apellido, String direccion, String telefono, LocalDate localDate, LocalDate now) {
+    }
 }
