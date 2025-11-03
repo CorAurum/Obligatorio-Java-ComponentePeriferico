@@ -43,4 +43,11 @@ public class DocumentoClinicoController {
     public ResponseEntity<List<DocumentoClinico>> listarPorProfesional(@PathVariable Long profesionalId) {
         return ResponseEntity.ok(documentoService.listarPorProfesional(profesionalId));
     }
+
+    @GetMapping("/{id}/externo")
+    public ResponseEntity<DocumentoClinico> obtenerDocumentoCompleto(@PathVariable Long id) {
+        DocumentoClinico doc = documentoService.listarPorId(id);
+        return ResponseEntity.ok(doc);
+    }
+
 }

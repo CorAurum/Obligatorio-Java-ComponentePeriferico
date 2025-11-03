@@ -20,6 +20,12 @@ public class DocumentoClinico {
     private String area;
     private String areaProximoControl;
 
+    private String titulo;
+    private String descripcion;
+    private String TipoDocumento;
+    private String FechaCreacion;
+    private String UrlAlojamiento;
+
     private LocalDateTime fechaProximaConsultaRecomendada;
     private LocalDateTime fechaProximaConsultaConfirmada;
 

@@ -21,6 +21,7 @@ public class IdentificadorUsuario {
 
     private String tipo;
     private String valor;
+    private String origen;
     private LocalDateTime fechaAlta;
 
     @ManyToOne
