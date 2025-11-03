@@ -1,6 +1,7 @@
 package com.prueba.PruebaConcepto.controller;
 
-import com.prueba.PruebaConcepto.Dto.UsuarioDeSaludDto;
+import com.prueba.PruebaConcepto.Dto.UsuarioRequest;
+import com.prueba.PruebaConcepto.entity.UsuarioDeSalud;
 import com.prueba.PruebaConcepto.service.UsuarioDeSaludService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -8,23 +9,35 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/usuarios-salud")
-@CrossOrigin(origins = "http://localhost:5173")
+@RequestMapping("/api/usuarios")
+@CrossOrigin(origins = "*")
 public class UsuarioDeSaludController {
 
-    private final UsuarioDeSaludService service;
+    private final UsuarioDeSaludService usuarioService;
 
-    public UsuarioDeSaludController(UsuarioDeSaludService service) {
-        this.service = service;
+    public UsuarioDeSaludController(UsuarioDeSaludService usuarioService) {
+        this.usuarioService = usuarioService;
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<UsuarioDeSaludDto> add(@RequestBody UsuarioDeSaludDto dto) {
-        return ResponseEntity.ok(service.crearUsuario(dto));
+    // Crear usuario + identificadores en una sola request
+    @PostMapping("/{clinicaId}")
+    public ResponseEntity<UsuarioDeSalud> crearUsuario(
+            @PathVariable Long clinicaId,
+            @RequestBody UsuarioRequest request) {
+
+        UsuarioDeSalud creado = usuarioService.crearUsuarioDesdeRequest(clinicaId, request);
+        return ResponseEntity.status(201).body(creado);
     }
 
-    @GetMapping("/list")
-    public ResponseEntity<List<UsuarioDeSaludDto>> list() {
-        return ResponseEntity.ok(service.listarUsuarios());
+    // ... otros endpoints ...
+
+    @GetMapping
+    public ResponseEntity<List<UsuarioDeSalud>> listarTodos() {
+        return ResponseEntity.ok(usuarioService.listarTodos());
+    }
+
+    @GetMapping("/clinica/{clinicaId}")
+    public ResponseEntity<List<UsuarioDeSalud>> listarPorClinica(@PathVariable Long clinicaId) {
+        return ResponseEntity.ok(usuarioService.listarPorClinica(clinicaId));
     }
 }

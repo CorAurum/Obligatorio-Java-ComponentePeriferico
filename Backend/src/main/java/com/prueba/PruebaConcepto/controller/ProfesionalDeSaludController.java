@@ -1,6 +1,6 @@
 package com.prueba.PruebaConcepto.controller;
 
-import com.prueba.PruebaConcepto.Dto.ProfesionalDeSaludDto;
+import com.prueba.PruebaConcepto.entity.ProfesionalDeSalud;
 import com.prueba.PruebaConcepto.service.ProfesionalDeSaludService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -8,23 +8,42 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/profesionales")
-@CrossOrigin(origins = "http://localhost:5173")
+@RequestMapping("/api/profesionales")
+//@CrossOrigin(origins = "*")
 public class ProfesionalDeSaludController {
 
-    private final ProfesionalDeSaludService service;
+    private final ProfesionalDeSaludService profesionalService;
 
-    public ProfesionalDeSaludController(ProfesionalDeSaludService service) {
-        this.service = service;
+    public ProfesionalDeSaludController(ProfesionalDeSaludService profesionalService) {
+        this.profesionalService = profesionalService;
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<ProfesionalDeSaludDto> add(@RequestBody ProfesionalDeSaludDto dto) {
-        return ResponseEntity.ok(service.crearProfesional(dto));
+    // DTO interno para recibir JSON
+    public static class ProfesionalRequest {
+        public ProfesionalDeSalud profesional;
+        public List<String> especialidades;
     }
 
-    @GetMapping("/list")
-    public ResponseEntity<List<ProfesionalDeSaludDto>> list() {
-        return ResponseEntity.ok(service.listarProfesionales());
+    @PostMapping("/{clinicaId}")
+    public ResponseEntity<ProfesionalDeSalud> crearProfesional(
+            @PathVariable Long clinicaId,
+            @RequestBody ProfesionalRequest request) {
+
+        ProfesionalDeSalud nuevo = profesionalService.crearProfesional(
+                clinicaId,
+                request.profesional,
+                request.especialidades
+        );
+        return ResponseEntity.ok(nuevo);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ProfesionalDeSalud>> listarTodos() {
+        return ResponseEntity.ok(profesionalService.listarTodos());
+    }
+
+    @GetMapping("/clinica/{clinicaId}")
+    public ResponseEntity<List<ProfesionalDeSalud>> listarPorClinica(@PathVariable Long clinicaId) {
+        return ResponseEntity.ok(profesionalService.listarPorClinica(clinicaId));
     }
 }

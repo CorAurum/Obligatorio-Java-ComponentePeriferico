@@ -3,6 +3,8 @@ package com.prueba.PruebaConcepto.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "motivos_consulta")
 @Getter @Setter
@@ -15,7 +17,6 @@ public class MotivoConsulta {
 
     private String motivo;
 
-    @ManyToOne
-    @JoinColumn(name = "id_documento")
-    private DocumentoClinico documento;
+    @ManyToMany(mappedBy = "motivosConsulta")
+    private List<DocumentoClinico> documentos;
 }

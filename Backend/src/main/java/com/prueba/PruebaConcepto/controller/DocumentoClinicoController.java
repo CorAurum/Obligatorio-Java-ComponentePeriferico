@@ -1,6 +1,5 @@
 package com.prueba.PruebaConcepto.controller;
 
-import com.prueba.PruebaConcepto.Dto.DocumentoClinicoDto;
 import com.prueba.PruebaConcepto.entity.DocumentoClinico;
 import com.prueba.PruebaConcepto.service.DocumentoClinicoService;
 import org.springframework.http.ResponseEntity;
@@ -9,8 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/documentos")
-@CrossOrigin(origins = "http://localhost:5173")
+@RequestMapping("/api/documentos")
+//@CrossOrigin(origins = "*")
 public class DocumentoClinicoController {
 
     private final DocumentoClinicoService documentoService;
@@ -19,31 +18,29 @@ public class DocumentoClinicoController {
         this.documentoService = documentoService;
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<DocumentoClinicoDto> add(@RequestBody DocumentoClinicoDto dto) {
-        return ResponseEntity.ok(documentoService.crearDocumento(dto));
+    @PostMapping
+    public ResponseEntity<DocumentoClinico> crearDocumento(
+            @RequestParam Long idClinica,
+            @RequestParam String idUsuario,
+            @RequestParam Long idProfesional,
+            @RequestBody DocumentoClinico documento) {
+
+        DocumentoClinico nuevo = documentoService.crearDocumento(idClinica, idUsuario, idProfesional, documento);
+        return ResponseEntity.ok(nuevo);
     }
 
-
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id) {
-        documentoService.eliminarDocumento(id);
-        return ResponseEntity.ok("Documento eliminado con éxito");
-    }
-
-    @GetMapping("/list")
-    public ResponseEntity<List<DocumentoClinicoDto>> listAll() {
+    @GetMapping
+    public ResponseEntity<List<DocumentoClinico>> listarTodos() {
         return ResponseEntity.ok(documentoService.listarTodos());
     }
 
-
-    @GetMapping("/{id}")
-    public ResponseEntity<DocumentoClinico> getDocumentoCompleto(@PathVariable Long id) {
-        DocumentoClinico documento = documentoService.obtenerPorId(id);
-        if (documento == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(documento);
+    @GetMapping("/usuario/{usuarioId}")
+    public ResponseEntity<List<DocumentoClinico>> listarPorUsuario(@PathVariable Long usuarioId) {
+        return ResponseEntity.ok(documentoService.listarPorUsuario(usuarioId));
     }
 
+    @GetMapping("/profesional/{profesionalId}")
+    public ResponseEntity<List<DocumentoClinico>> listarPorProfesional(@PathVariable Long profesionalId) {
+        return ResponseEntity.ok(documentoService.listarPorProfesional(profesionalId));
+    }
 }

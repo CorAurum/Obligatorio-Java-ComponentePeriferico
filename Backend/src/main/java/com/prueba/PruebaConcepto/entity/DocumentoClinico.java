@@ -2,6 +2,8 @@ package com.prueba.PruebaConcepto.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,32 +15,30 @@ public class DocumentoClinico {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idDocumento;
-
-    private LocalDateTime fechaCreacion;
+    private Long id;
 
     private String area;
-
-    //Instrucciones de seguimiento
-    private LocalDateTime fechaProximaConsultaRecomendada;
-    private LocalDateTime fechaProximaConsultaConfirmada;
     private String areaProximoControl;
 
-    @ManyToOne
-    @JoinColumn(name = "id_clinica")
-    private Clinica clinica;
+    private LocalDateTime fechaProximaConsultaRecomendada;
+    private LocalDateTime fechaProximaConsultaConfirmada;
 
     @ManyToOne
-    @JoinColumn(name = "cedula_usuario", nullable = false)
+    @JoinColumn(name = "usuario_id")
     private UsuarioDeSalud usuario;
 
     @ManyToOne
-    @JoinColumn(name = "id_profesional", nullable = false)
+    @JoinColumn(name = "profesional_id")
     private ProfesionalDeSalud profesional;
 
-    @OneToMany(mappedBy = "documento", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany
+    @JoinTable(
+            name = "documento_motivos",
+            joinColumns = @JoinColumn(name = "documento_id"),
+            inverseJoinColumns = @JoinColumn(name = "motivo_id")
+    )
     private List<MotivoConsulta> motivosConsulta;
 
-    @OneToMany(mappedBy = "documento", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "documentoClinico", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Diagnostico> diagnosticos;
 }
