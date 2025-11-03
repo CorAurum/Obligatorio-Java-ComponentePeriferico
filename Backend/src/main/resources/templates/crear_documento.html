@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro de Documento Clínico</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        body {
+            background-color: #f9fafb;
+            font-family: "Segoe UI", sans-serif;
+        }
+
+        .form-container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 1rem;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-top: 1.5rem;
+            border-bottom: 2px solid #0d6efd;
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+
+        .dropdown-menu {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .diagnostico-card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 0.75rem;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .add-btn {
+            background-color: #0d6efd;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 5px 15px;
+            cursor: pointer;
+        }
+
+        .add-btn:hover {
+            background-color: #0b5ed7;
+        }
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <h2 class="mb-4 text-center text-primary">Registrar Documento Clínico</h2>
+
+    <form id="documentoForm">
+
+        <!-- Datos principales -->
+        <div class="section-title">Datos Principales</div>
+
+        <div class="row">
+            <div class="col-md-6 form-group">
+                <label for="idClinica">Clínica</label>
+                <input type="number" id="idClinica" name="idClinica" class="form-control" placeholder="ID de la clínica">
+            </div>
+
+            <div class="col-md-6 form-group">
+                <label for="cedulaUsuario">Usuario (Paciente)</label>
+                <select id="cedulaUsuario" name="cedulaUsuario" class="form-select" th:each="u : ${usuarios}"
+                        th:value="${u.cedulaIdentidad}" th:text="${u.nombre + ' ' + u.apellido}"></select>
+            </div>
+
+            <div class="col-md-6 form-group">
+                <label for="idProfesional">Profesional de Salud</label>
+                <select id="idProfesional" name="idProfesional" class="form-select" th:each="p : ${profesionales}"
+                        th:value="${p.idProfesional}" th:text="${p.nombre + ' ' + p.apellido}"></select>
+            </div>
+
+            <div class="col-md-6 form-group">
+                <label for="area">Área</label>
+                <input type="text" id="area" name="area" class="form-control" placeholder="Área de atención (Ej. Neurología)">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 form-group">
+                <label for="fechaProximaConsultaRecomendada">Próxima consulta recomendada</label>
+                <input type="datetime-local" id="fechaProximaConsultaRecomendada" name="fechaProximaConsultaRecomendada"
+                       class="form-control">
+            </div>
+
+            <div class="col-md-6 form-group">
+                <label for="fechaProximaConsultaConfirmada">Próxima consulta confirmada</label>
+                <input type="datetime-local" id="fechaProximaConsultaConfirmada" name="fechaProximaConsultaConfirmada"
+                       class="form-control">
+            </div>
+        </div>
+
+        <!-- Motivos -->
+        <div class="section-title">Motivos de la Consulta</div>
+        <div class="form-group position-relative">
+            <label for="motivoInput">Motivo</label>
+            <input type="text" id="motivoInput" class="form-control" placeholder="Escriba para buscar..." autocomplete="off">
+            <div id="motivoDropdown" class="dropdown-menu"></div>
+        </div>
+        <ul id="motivosList" class="list-group mb-3"></ul>
+
+        <!-- Diagnósticos -->
+        <div class="section-title">Diagnósticos</div>
+        <div id="diagnosticosContainer"></div>
+
+        <button type="button" id="addDiagnosticoBtn" class="add-btn mb-3">+ Agregar Diagnóstico</button>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-success btn-lg mt-3">Registrar Documento</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // --- Autocomplete de Motivos ---
+    $('#motivoInput').on('input', function () {
+        const query = $(this).val();
+        if (query.length < 2) {
+            $('#motivoDropdown').hide();
+            return;
+        }
+
+        $.ajax({
+            url: '/api/motivos/buscar',
+            data: { q: query }, // usa 'q' como en tu controlador
+            success: function (data) {
+                const dropdown = $('#motivoDropdown');
+                dropdown.empty();
+                data.slice(0, 10).forEach(m => {
+                    dropdown.append(`<div class="dropdown-item">${m.motivo}</div>`);
+                });
+                dropdown.show();
+            }
+        });
+    });
+
+    $(document).on('click', '#motivoDropdown .dropdown-item', function () {
+        const motivo = $(this).text();
+        $('#motivosList').append(`<li class="list-group-item d-flex justify-content-between align-items-center">${motivo}<button type="button" class="btn btn-sm btn-danger removeMotivoBtn">x</button></li>`);
+        $('#motivoInput').val('');
+        $('#motivoDropdown').hide();
+    });
+
+    $(document).on('click', '.removeMotivoBtn', function () {
+        $(this).closest('li').remove();
+    });
+
+    // --- Agregar Diagnóstico Dinámico ---
+    $('#addDiagnosticoBtn').on('click', function () {
+        const diagnosticoHTML = `
+            <div class="diagnostico-card">
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <label>Descripción</label>
+                        <input type="text" class="form-control" name="descripcion" placeholder="Ej. Hipertensión">
+                    </div>
+                    <div class="col-md-3">
+                        <label>Fecha Inicio</label>
+                        <input type="date" class="form-control" name="fechaInicio">
+                    </div>
+                    <div class="col-md-2">
+                        <label>Estado</label>
+                        <select class="form-select estadoSelect">
+                            <option th:each="e : ${estados}" th:value="${e.estadoProblema}" th:text="${e.estadoProblema}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label>Grado Certeza</label>
+                        <select class="form-select gradoSelect">
+                            <option th:each="g : ${gradosCerteza}" th:value="${g.gradoCerteza}" th:text="${g.gradoCerteza}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>`;
+        $('#diagnosticosContainer').append(diagnosticoHTML);
+    });
+
+    // --- Envío del formulario ---
+    $('#documentoForm').on('submit', function (e) {
+        e.preventDefault();
+
+        const motivos = [];
+        $('#motivosList li').each(function () {
+            motivos.push({motivo: $(this).text().replace('x', '').trim()});
+        });
+
+        const diagnosticos = [];
+        $('#diagnosticosContainer .diagnostico-card').each(function () {
+            diagnosticos.push({
+                descripcion: $(this).find('input[name="descripcion"]').val(),
+                fechaInicio: $(this).find('input[name="fechaInicio"]').val(),
+                estado: $(this).find('.estadoSelect').val(),
+                gradoCerteza: $(this).find('.gradoSelect').val()
+            });
+        });
+
+        const payload = {
+            idClinica: $('#idClinica').val(),
+            cedulaUsuario: $('#cedulaUsuario').val(),
+            idProfesional: $('#idProfesional').val(),
+            fechaProximaConsultaRecomendada: $('#fechaProximaConsultaRecomendada').val(),
+            fechaProximaConsultaConfirmada: $('#fechaProximaConsultaConfirmada').val(),
+            area: $('#area').val(),
+            motivosConsulta: motivos,
+            diagnosticos: diagnosticos
+        };
+
+        console.log("Payload a enviar:", payload);
+
+        $.ajax({
+            url: '/api/documento/registrar', // endpoint a definir
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(payload),
+            success: function () {
+                alert('Documento registrado correctamente.');
+                $('#documentoForm')[0].reset();
+                $('#motivosList').empty();
+                $('#diagnosticosContainer').empty();
+            },
+            error: function () {
+                alert('Error al registrar el documento.');
+            }
+        });
+    });
+</script>
+</body>
+</html>

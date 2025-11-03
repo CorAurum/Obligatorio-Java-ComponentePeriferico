@@ -81,7 +81,7 @@ public class DocumentoClinicoService {
 
 
         // 🔹 Llamar al metodo auxiliar para enviar el metadato al componente central y que sea registrado
-        enviarMetadato(saved);
+      //  enviarMetadato(saved);
 
 
         return toDto(saved);
