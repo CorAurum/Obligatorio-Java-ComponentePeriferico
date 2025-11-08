@@ -1,5 +1,7 @@
 package com.prueba.PruebaConcepto.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,6 +13,10 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIdentityInfo( // 👈 evita bucles mostrando solo IDs en las referencias
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id"
+)
 public class Clinica {
 
     @Id
@@ -23,7 +29,6 @@ public class Clinica {
     private String tipoInstitucion;
 
     private String dominioSubdominio; // ej: "centrovida.enbodi.xyz"
-    private String schemaName;        // schema asociado en PostgreSQL
 
     private LocalDateTime fechaAlta;
     private LocalDateTime fechaBaja;

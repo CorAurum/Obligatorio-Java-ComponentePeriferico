@@ -9,7 +9,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/administradores")
-//@CrossOrigin(origins = "*")
 public class AdministradorController {
 
     private final AdministradorService administradorService;
@@ -18,25 +17,17 @@ public class AdministradorController {
         this.administradorService = administradorService;
     }
 
-    // Crear administrador asociado a una clínica
-    @PostMapping("/{clinicaId}")
-    public ResponseEntity<Administrador> crearAdministrador(
-            @PathVariable Long clinicaId,
-            @RequestBody Administrador administrador) {
-
-        Administrador nuevo = administradorService.crearAdministrador(clinicaId, administrador);
+    // Crear administrador en la clínica actual
+    @PostMapping
+    public ResponseEntity<Administrador> crearAdministrador(@RequestBody Administrador administrador) {
+        Administrador nuevo = administradorService.crearAdministrador(administrador);
         return ResponseEntity.ok(nuevo);
     }
 
-    // Listar todos los administradores
+    // Listar administradores solo de la clínica actual
     @GetMapping
-    public ResponseEntity<List<Administrador>> listarTodos() {
-        return ResponseEntity.ok(administradorService.listarTodos());
-    }
-
-    // Listar administradores de una clínica específica
-    @GetMapping("/clinica/{clinicaId}")
-    public ResponseEntity<List<Administrador>> listarPorClinica(@PathVariable Long clinicaId) {
-        return ResponseEntity.ok(administradorService.listarPorClinica(clinicaId));
+    public ResponseEntity<List<Administrador>> listarAdministradores() {
+        return ResponseEntity.ok(administradorService.listarPorClinicaActual());
     }
 }
+

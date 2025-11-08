@@ -1,5 +1,10 @@
 package com.prueba.PruebaConcepto.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.ParamDef;
+
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
@@ -9,6 +14,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Filter(name = "tenantFilter", condition = "clinica_id = :clinicaId")
 public class ProfesionalDeSalud {
 
     @Id
@@ -24,6 +30,7 @@ public class ProfesionalDeSalud {
 
     @ManyToOne
     @JoinColumn(name = "clinica_id")
+    @JsonIdentityReference(alwaysAsId = true)
     private Clinica clinica;
 
     @ManyToMany

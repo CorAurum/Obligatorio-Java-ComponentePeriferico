@@ -10,7 +10,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/documentos")
 //@CrossOrigin(origins = "*")
-public class DocumentoClinicoController {
+public class
+DocumentoClinicoController {
 
     private final DocumentoClinicoService documentoService;
 
