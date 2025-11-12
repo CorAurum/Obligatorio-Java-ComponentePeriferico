@@ -20,8 +20,7 @@ import java.util.List;
 public class Clinica {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     private String nombre;
     private String direccion;

@@ -22,7 +22,7 @@ public class UsuarioDeSaludController {
     // Crear usuario + identificadores en una sola request
     @PostMapping("/{clinicaId}")
     public ResponseEntity<UsuarioDeSalud> crearUsuario(
-            @PathVariable Long clinicaId,
+            @PathVariable String clinicaId,
             @RequestBody UsuarioRequest request) {
 
         UsuarioDeSalud creado = usuarioService.crearUsuarioDesdeRequest(clinicaId, request);
@@ -37,7 +37,7 @@ public class UsuarioDeSaludController {
     }
 
     @GetMapping("/clinica/{clinicaId}")
-    public ResponseEntity<List<UsuarioDeSalud>> listarPorClinica(@PathVariable Long clinicaId) {
+    public ResponseEntity<List<UsuarioDeSalud>> listarPorClinica(@PathVariable String clinicaId) {
         return ResponseEntity.ok(usuarioService.listarPorClinica(clinicaId));
     }
 }

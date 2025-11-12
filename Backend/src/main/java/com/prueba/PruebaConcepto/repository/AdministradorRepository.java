@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 public interface AdministradorRepository extends JpaRepository<Administrador, Long> {
-    List<Administrador> findByClinicaId(Long clinicaId);
+    List<Administrador> findByClinicaId(String clinicaId);
     boolean existsByEmail(String email);
 }

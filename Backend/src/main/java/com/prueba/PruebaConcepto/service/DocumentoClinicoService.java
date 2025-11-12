@@ -53,7 +53,7 @@ public class DocumentoClinicoService {
         }
 
     @Transactional
-    public DocumentoClinico crearDocumento(Long idClinica, String idUsuario, Long idProfesional, DocumentoClinico documento) {
+    public DocumentoClinico crearDocumento(String idClinica, String idUsuario, Long idProfesional, DocumentoClinico documento) {
         Clinica clinica = clinicaRepository.findById(idClinica)
                 .orElseThrow(() -> new IllegalArgumentException("Clínica no encontrada con ID: " + idClinica));
 

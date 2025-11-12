@@ -26,7 +26,7 @@ public class ProfesionalDeSaludService {
         this.especialidadRepository = especialidadRepository;
     }
 
-    public ProfesionalDeSalud crearProfesional(Long clinicaId, ProfesionalDeSalud profesional, List<String> especialidadesNombres) {
+    public ProfesionalDeSalud crearProfesional(String clinicaId, ProfesionalDeSalud profesional, List<String> especialidadesNombres) {
         if (profesionalRepository.existsByEmail(profesional.getEmail())) {
             throw new IllegalArgumentException("Ya existe un profesional con ese correo");
         }
@@ -51,7 +51,7 @@ public class ProfesionalDeSaludService {
         return profesionalRepository.save(profesional);
     }
 
-    public List<ProfesionalDeSalud> listarPorClinica(Long clinicaId) {
+    public List<ProfesionalDeSalud> listarPorClinica(String clinicaId) {
         return profesionalRepository.findByClinicaId(clinicaId);
     }
 

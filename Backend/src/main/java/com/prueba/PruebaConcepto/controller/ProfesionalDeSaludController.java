@@ -26,7 +26,7 @@ public class ProfesionalDeSaludController {
 
     @PostMapping("/{clinicaId}")
     public ResponseEntity<ProfesionalDeSalud> crearProfesional(
-            @PathVariable Long clinicaId,
+            @PathVariable String clinicaId,
             @RequestBody ProfesionalRequest request) {
 
         ProfesionalDeSalud nuevo = profesionalService.crearProfesional(
@@ -43,7 +43,7 @@ public class ProfesionalDeSaludController {
     }
 
     @GetMapping("/clinica/{clinicaId}")
-    public ResponseEntity<List<ProfesionalDeSalud>> listarPorClinica(@PathVariable Long clinicaId) {
+    public ResponseEntity<List<ProfesionalDeSalud>> listarPorClinica(@PathVariable String clinicaId) {
         return ResponseEntity.ok(profesionalService.listarPorClinica(clinicaId));
     }
 }

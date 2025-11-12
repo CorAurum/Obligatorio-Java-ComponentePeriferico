@@ -21,7 +21,7 @@ DocumentoClinicoController {
 
     @PostMapping
     public ResponseEntity<DocumentoClinico> crearDocumento(
-            @RequestParam Long idClinica,
+            @RequestParam String idClinica,
             @RequestParam String idUsuario,
             @RequestParam Long idProfesional,
             @RequestBody DocumentoClinico documento) {

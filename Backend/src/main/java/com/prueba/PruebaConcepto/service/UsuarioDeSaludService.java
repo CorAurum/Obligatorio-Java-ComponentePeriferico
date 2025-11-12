@@ -43,7 +43,7 @@ public class UsuarioDeSaludService {
     }
 
     @Transactional
-    public UsuarioDeSalud crearUsuarioDesdeRequest(Long clinicaId, UsuarioRequest request) {
+    public UsuarioDeSalud crearUsuarioDesdeRequest(String clinicaId, UsuarioRequest request) {
         Clinica clinica = clinicaRepository.findById(clinicaId)
                 .orElseThrow(() -> new IllegalArgumentException("Clínica no encontrada con ID: " + clinicaId));
 
@@ -100,7 +100,7 @@ public class UsuarioDeSaludService {
         return usuarioRepository.findAll();
     }
 
-    public List<UsuarioDeSalud> listarPorClinica(Long clinicaId) {
+    public List<UsuarioDeSalud> listarPorClinica(String clinicaId) {
         return usuarioRepository.findByClinicaId(clinicaId);
     }
 }

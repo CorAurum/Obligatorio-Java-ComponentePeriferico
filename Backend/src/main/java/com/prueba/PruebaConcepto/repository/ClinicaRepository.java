@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface ClinicaRepository extends JpaRepository<Clinica, Long> {
+public interface ClinicaRepository extends JpaRepository<Clinica, String> {
     Optional<Clinica> findByDominioSubdominio(String dominioSubdominio);
     boolean existsByNombre(String nombre);
 }

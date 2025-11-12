@@ -4,7 +4,7 @@ import com.prueba.PruebaConcepto.entity.Administrador;
 import com.prueba.PruebaConcepto.entity.Clinica;
 import com.prueba.PruebaConcepto.repository.AdministradorRepository;
 import com.prueba.PruebaConcepto.repository.ClinicaRepository;
-import com.prueba.PruebaConcepto.tenant.TenantContext;
+// import com.prueba.PruebaConcepto.tenant.TenantContext;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,7 +25,8 @@ public class AdministradorService {
             throw new IllegalArgumentException("Ya existe un administrador con ese correo");
         }
 
-        Long clinicaId = TenantContext.getClinicaId();
+        // FABRICIO EDITO ESTO
+        String clinicaId = "test";  // TenantContext.getClinicaId();
         if (clinicaId == null) {
             throw new IllegalStateException("No se encontró un tenant activo en el contexto");
         }
@@ -39,7 +40,8 @@ public class AdministradorService {
     }
 
     public List<Administrador> listarPorClinicaActual() {
-        Long clinicaId = TenantContext.getClinicaId();
+        // FABRICIO EDITO ESTO
+        String clinicaId = "Test";  // TenantContext.getClinicaId();
         if (clinicaId == null) {
             throw new IllegalStateException("No se encontró un tenant activo en el contexto");
         }

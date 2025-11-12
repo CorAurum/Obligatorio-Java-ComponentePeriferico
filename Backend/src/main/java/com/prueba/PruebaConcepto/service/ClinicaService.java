@@ -22,6 +22,7 @@ public class ClinicaService {
         if (clinicaRepository.existsByNombre(clinica.getNombre())) {
             throw new IllegalArgumentException("Ya existe una clínica con ese nombre");
         }
+
         return clinicaRepository.save(clinica);
     }
 
