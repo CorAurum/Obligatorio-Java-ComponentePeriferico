@@ -9,9 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/documentos")
-//@CrossOrigin(origins = "*")
-public class
-DocumentoClinicoController {
+public class DocumentoClinicoController {
 
     private final DocumentoClinicoService documentoService;
 
@@ -21,18 +19,17 @@ DocumentoClinicoController {
 
     @PostMapping
     public ResponseEntity<DocumentoClinico> crearDocumento(
-            @RequestParam Long idClinica,
             @RequestParam String idUsuario,
             @RequestParam Long idProfesional,
             @RequestBody DocumentoClinico documento) {
 
-        DocumentoClinico nuevo = documentoService.crearDocumento(idClinica, idUsuario, idProfesional, documento);
+        DocumentoClinico nuevo = documentoService.crearDocumento(idUsuario, idProfesional, documento);
         return ResponseEntity.ok(nuevo);
     }
 
     @GetMapping
     public ResponseEntity<List<DocumentoClinico>> listarTodos() {
-        return ResponseEntity.ok(documentoService.listarTodos());
+        return ResponseEntity.ok(documentoService.listarPorClinicaActual());
     }
 
     @GetMapping("/usuario/{usuarioId}")
@@ -45,10 +42,9 @@ DocumentoClinicoController {
         return ResponseEntity.ok(documentoService.listarPorProfesional(profesionalId));
     }
 
-    @GetMapping("/{id}/externo")
-    public ResponseEntity<DocumentoClinico> obtenerDocumentoCompleto(@PathVariable Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<DocumentoClinico> obtenerPorId(@PathVariable Long id) {
         DocumentoClinico doc = documentoService.listarPorId(id);
         return ResponseEntity.ok(doc);
     }
-
 }

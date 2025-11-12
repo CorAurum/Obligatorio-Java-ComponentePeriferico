@@ -9,7 +9,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/profesionales")
-//@CrossOrigin(origins = "*")
 public class ProfesionalDeSaludController {
 
     private final ProfesionalDeSaludService profesionalService;
@@ -18,32 +17,19 @@ public class ProfesionalDeSaludController {
         this.profesionalService = profesionalService;
     }
 
-    // DTO interno para recibir JSON
     public static class ProfesionalRequest {
         public ProfesionalDeSalud profesional;
         public List<String> especialidades;
     }
 
-    @PostMapping("/{clinicaId}")
-    public ResponseEntity<ProfesionalDeSalud> crearProfesional(
-            @PathVariable Long clinicaId,
-            @RequestBody ProfesionalRequest request) {
-
-        ProfesionalDeSalud nuevo = profesionalService.crearProfesional(
-                clinicaId,
-                request.profesional,
-                request.especialidades
-        );
+    @PostMapping
+    public ResponseEntity<ProfesionalDeSalud> crearProfesional(@RequestBody ProfesionalRequest request) {
+        ProfesionalDeSalud nuevo = profesionalService.crearProfesional(request.profesional, request.especialidades);
         return ResponseEntity.ok(nuevo);
     }
 
     @GetMapping
-    public ResponseEntity<List<ProfesionalDeSalud>> listarTodos() {
-        return ResponseEntity.ok(profesionalService.listarTodos());
-    }
-
-    @GetMapping("/clinica/{clinicaId}")
-    public ResponseEntity<List<ProfesionalDeSalud>> listarPorClinica(@PathVariable Long clinicaId) {
-        return ResponseEntity.ok(profesionalService.listarPorClinica(clinicaId));
+    public ResponseEntity<List<ProfesionalDeSalud>> listarProfesionales() {
+        return ResponseEntity.ok(profesionalService.listarPorClinicaActual());
     }
 }

@@ -12,6 +12,7 @@ import com.prueba.PruebaConcepto.entity.IdentificadorUsuario;
 import com.prueba.PruebaConcepto.entity.UsuarioDeSalud;
 import com.prueba.PruebaConcepto.repository.ClinicaRepository;
 import com.prueba.PruebaConcepto.repository.UsuarioDeSaludRepository;
+import com.prueba.PruebaConcepto.tenant.TenantContext;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +31,6 @@ public class UsuarioDeSaludService {
             .registerModule(new JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-
     public UsuarioDeSaludService(
             UsuarioDeSaludRepository usuarioRepository,
             ClinicaRepository clinicaRepository,
@@ -43,7 +43,8 @@ public class UsuarioDeSaludService {
     }
 
     @Transactional
-    public UsuarioDeSalud crearUsuarioDesdeRequest(Long clinicaId, UsuarioRequest request) {
+    public UsuarioDeSalud crearUsuarioDesdeRequest(UsuarioRequest request) {
+        Long clinicaId = TenantContext.getClinicaId();
         Clinica clinica = clinicaRepository.findById(clinicaId)
                 .orElseThrow(() -> new IllegalArgumentException("Clínica no encontrada con ID: " + clinicaId));
 
@@ -59,7 +60,6 @@ public class UsuarioDeSaludService {
         usuario.setActivo(true);
         usuario.setFechaRegistro(LocalDateTime.now());
 
-        // Identificadores
         if (request.getIdentificadores() != null && !request.getIdentificadores().isEmpty()) {
             List<IdentificadorUsuario> identificadores = new ArrayList<>();
             for (IdentificadorRequest idReq : request.getIdentificadores()) {
@@ -74,33 +74,23 @@ public class UsuarioDeSaludService {
             usuario.setIdentificadores(identificadores);
         }
 
-        // Guardar
         UsuarioDeSalud nuevo = usuarioRepository.save(usuario);
 
-        // 🔹 Mapear a DTO y enviar al central
         UsuarioCentralDTO dto = usuarioMapper.toCentralDTO(nuevo, String.valueOf(clinica.getId()));
 
-
-
         try {
-            System.out.println("\n📤 JSON ENVIADO AL CENTRAL (Usuario):");
+            System.out.println("\nJSON ENVIADO AL CENTRAL (Usuario):");
             System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(dto));
         } catch (Exception e) {
-            System.out.println("❌ Error mostrando JSON del usuario: " + e.getMessage());
+            System.out.println("Error mostrando JSON del usuario: " + e.getMessage());
         }
 
-      //   (por ahora solo logea, si querés enviar realmente, descomentá)
-         centralSyncService.enviarUsuarioAlCentral(dto);
-
-
+        centralSyncService.enviarUsuarioAlCentral(dto);
         return nuevo;
     }
 
-    public List<UsuarioDeSalud> listarTodos() {
-        return usuarioRepository.findAll();
-    }
-
-    public List<UsuarioDeSalud> listarPorClinica(Long clinicaId) {
+    public List<UsuarioDeSalud> listarPorClinicaActual() {
+        Long clinicaId = TenantContext.getClinicaId();
         return usuarioRepository.findByClinicaId(clinicaId);
     }
 }

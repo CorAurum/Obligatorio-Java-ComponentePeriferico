@@ -14,4 +14,5 @@ public interface DocumentoClinicoRepository extends JpaRepository<DocumentoClini
     List<DocumentoClinico> findByUsuarioId(Long id);
     List<DocumentoClinico> findByProfesional_IdProfesional(Long idProfesional);
     public DocumentoClinico findByid(Long id);
+    List<DocumentoClinico> findByClinicaId(Long clinicaId);
 }

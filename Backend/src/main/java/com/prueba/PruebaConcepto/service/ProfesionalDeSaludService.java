@@ -6,6 +6,7 @@ import com.prueba.PruebaConcepto.entity.ProfesionalDeSalud;
 import com.prueba.PruebaConcepto.repository.ClinicaRepository;
 import com.prueba.PruebaConcepto.repository.EspecialidadRepository;
 import com.prueba.PruebaConcepto.repository.ProfesionalDeSaludRepository;
+import com.prueba.PruebaConcepto.tenant.TenantContext;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public class ProfesionalDeSaludService {
         this.especialidadRepository = especialidadRepository;
     }
 
-    public ProfesionalDeSalud crearProfesional(Long clinicaId, ProfesionalDeSalud profesional, List<String> especialidadesNombres) {
+    public ProfesionalDeSalud crearProfesional(ProfesionalDeSalud profesional, List<String> especialidadesNombres) {
         if (profesionalRepository.existsByEmail(profesional.getEmail())) {
             throw new IllegalArgumentException("Ya existe un profesional con ese correo");
         }
@@ -34,10 +35,10 @@ public class ProfesionalDeSaludService {
             throw new IllegalArgumentException("Ya existe un profesional con esa cédula");
         }
 
+        Long clinicaId = TenantContext.getClinicaId();
         Clinica clinica = clinicaRepository.findById(clinicaId)
                 .orElseThrow(() -> new IllegalArgumentException("Clínica no encontrada con ID: " + clinicaId));
 
-        // Buscar las especialidades por nombre
         List<Especialidad> especialidades = new ArrayList<>();
         for (String nombreEsp : especialidadesNombres) {
             Especialidad esp = especialidadRepository.findByNombre(nombreEsp)
@@ -51,11 +52,8 @@ public class ProfesionalDeSaludService {
         return profesionalRepository.save(profesional);
     }
 
-    public List<ProfesionalDeSalud> listarPorClinica(Long clinicaId) {
+    public List<ProfesionalDeSalud> listarPorClinicaActual() {
+        Long clinicaId = TenantContext.getClinicaId();
         return profesionalRepository.findByClinicaId(clinicaId);
-    }
-
-    public List<ProfesionalDeSalud> listarTodos() {
-        return profesionalRepository.findAll();
     }
 }
