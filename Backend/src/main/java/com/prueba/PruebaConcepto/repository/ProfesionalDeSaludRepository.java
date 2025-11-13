@@ -9,7 +9,7 @@ import java.util.List;
 
 @Repository
 public interface ProfesionalDeSaludRepository extends JpaRepository<ProfesionalDeSalud, Long> {
-    List<ProfesionalDeSalud> findByClinicaId(Long clinicaId);
+    List<ProfesionalDeSalud> findByClinicaId(String clinicaId);
     boolean existsByEmail(String email);
     boolean existsByCedulaIdentidad(String cedulaIdentidad);
 }

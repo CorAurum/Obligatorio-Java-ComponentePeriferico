@@ -25,7 +25,7 @@ public class AdministradorService {
             throw new IllegalArgumentException("Ya existe un administrador con ese correo");
         }
 
-        Long clinicaId = TenantContext.getClinicaId();
+        String clinicaId = TenantContext.getClinicaId();
         if (clinicaId == null) {
             throw new IllegalStateException("No se encontró un tenant activo en el contexto");
         }
@@ -39,7 +39,7 @@ public class AdministradorService {
     }
 
     public List<Administrador> listarPorClinicaActual() {
-        Long clinicaId = TenantContext.getClinicaId();
+        String clinicaId = TenantContext.getClinicaId();
         if (clinicaId == null) {
             throw new IllegalStateException("No se encontró un tenant activo en el contexto");
         }

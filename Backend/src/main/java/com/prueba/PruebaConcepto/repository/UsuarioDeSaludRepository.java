@@ -11,6 +11,6 @@ import java.util.List;
 
 @Repository
 public interface UsuarioDeSaludRepository extends JpaRepository<UsuarioDeSalud, String> {
-    List<UsuarioDeSalud> findByClinicaId(Long clinicaId);
+    List<UsuarioDeSalud> findByClinicaId(String clinicaId);
     Optional<UsuarioDeSalud> findByEmail(String email);
 }

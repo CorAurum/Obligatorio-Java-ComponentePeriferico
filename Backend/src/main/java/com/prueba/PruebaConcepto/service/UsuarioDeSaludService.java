@@ -44,7 +44,7 @@ public class UsuarioDeSaludService {
 
     @Transactional
     public UsuarioDeSalud crearUsuarioDesdeRequest(UsuarioRequest request) {
-        Long clinicaId = TenantContext.getClinicaId();
+        String clinicaId = TenantContext.getClinicaId();
         Clinica clinica = clinicaRepository.findById(clinicaId)
                 .orElseThrow(() -> new IllegalArgumentException("Clínica no encontrada con ID: " + clinicaId));
 
@@ -90,7 +90,7 @@ public class UsuarioDeSaludService {
     }
 
     public List<UsuarioDeSalud> listarPorClinicaActual() {
-        Long clinicaId = TenantContext.getClinicaId();
+        String clinicaId = TenantContext.getClinicaId();
         return usuarioRepository.findByClinicaId(clinicaId);
     }
 }

@@ -53,7 +53,7 @@ public class DocumentoClinicoService {
 
     @Transactional
     public DocumentoClinico crearDocumento(String idUsuario, Long idProfesional, DocumentoClinico documento) {
-        Long clinicaId = TenantContext.getClinicaId();
+        String clinicaId = TenantContext.getClinicaId();
         if (clinicaId == null) {
             throw new IllegalStateException("No se encontró un tenant activo en el contexto");
         }
@@ -102,12 +102,12 @@ public class DocumentoClinicoService {
             System.out.println("Error mostrando JSON del documento: " + e.getMessage());
         }
 
-        centralSyncService.enviarDocumentoAlCentral(dto);
+      //  centralSyncService.enviarDocumentoAlCentral(dto);
         return nuevoDoc;
     }
 
     public List<DocumentoClinico> listarPorClinicaActual() {
-        Long clinicaId = TenantContext.getClinicaId();
+        String clinicaId = TenantContext.getClinicaId();
         return documentoRepository.findByClinicaId(clinicaId);
     }
 

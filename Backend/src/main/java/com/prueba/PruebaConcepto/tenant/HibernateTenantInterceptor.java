@@ -21,7 +21,7 @@ public class HibernateTenantInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
 
-        Long clinicaId = TenantContext.getClinicaId();
+        String clinicaId = TenantContext.getClinicaId();
         if (clinicaId != null) {
             Session session = entityManager.unwrap(Session.class);
             session.enableFilter("tenantFilter").setParameter("clinicaId", clinicaId);

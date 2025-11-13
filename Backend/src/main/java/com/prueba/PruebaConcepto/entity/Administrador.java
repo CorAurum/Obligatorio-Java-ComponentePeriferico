@@ -16,7 +16,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@FilterDef(name = "tenantFilter", parameters = @ParamDef(name = "clinicaId", type = Long.class))
+@FilterDef(name = "tenantFilter", parameters = @ParamDef(name = "clinicaId", type = String.class))
 @Filter(name = "tenantFilter", condition = "clinica_id = :clinicaId")
 public class Administrador {
 

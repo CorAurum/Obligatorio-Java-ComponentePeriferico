@@ -35,7 +35,7 @@ public class ProfesionalDeSaludService {
             throw new IllegalArgumentException("Ya existe un profesional con esa cédula");
         }
 
-        Long clinicaId = TenantContext.getClinicaId();
+        String clinicaId = TenantContext.getClinicaId();
         Clinica clinica = clinicaRepository.findById(clinicaId)
                 .orElseThrow(() -> new IllegalArgumentException("Clínica no encontrada con ID: " + clinicaId));
 
@@ -53,7 +53,7 @@ public class ProfesionalDeSaludService {
     }
 
     public List<ProfesionalDeSalud> listarPorClinicaActual() {
-        Long clinicaId = TenantContext.getClinicaId();
+        String clinicaId = TenantContext.getClinicaId();
         return profesionalRepository.findByClinicaId(clinicaId);
     }
 }

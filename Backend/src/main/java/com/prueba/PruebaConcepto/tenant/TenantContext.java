@@ -2,17 +2,17 @@ package com.prueba.PruebaConcepto.tenant;
 
 public class TenantContext {
 
-    private static final ThreadLocal<Long> currentClinicaId = new ThreadLocal<>();
+    private static final ThreadLocal<String> currentClinicaId = new ThreadLocal<>();
 
     private TenantContext() {
         // Evita instanciación
     }
 
-    public static void setClinicaId(Long clinicaId) {
+    public static void setClinicaId(String clinicaId) {
         currentClinicaId.set(clinicaId);
     }
 
-    public static Long getClinicaId() {
+    public static String getClinicaId() {
         return currentClinicaId.get();
     }
 
