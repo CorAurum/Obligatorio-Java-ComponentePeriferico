@@ -102,7 +102,7 @@ public class DocumentoClinicoService {
             System.out.println("Error mostrando JSON del documento: " + e.getMessage());
         }
 
-      //  centralSyncService.enviarDocumentoAlCentral(dto);
+        centralSyncService.enviarDocumentoAlCentral(dto);
         return nuevoDoc;
     }
 

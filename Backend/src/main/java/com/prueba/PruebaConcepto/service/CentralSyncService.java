@@ -14,7 +14,7 @@ public class CentralSyncService {
 
     private final RestTemplate restTemplate;
 
-    @Value("${central.api.base-url}")
+    @Value("http://localhost:8080/CompC-1.0-SNAPSHOT")
     private String centralBaseUrl;
 
     public CentralSyncService() {
