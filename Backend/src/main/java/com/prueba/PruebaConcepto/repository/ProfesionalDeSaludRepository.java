@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ProfesionalDeSaludRepository extends JpaRepository<ProfesionalDeSalud, Long> {
+public interface ProfesionalDeSaludRepository extends JpaRepository<ProfesionalDeSalud, String> {
     List<ProfesionalDeSalud> findByClinicaId(String clinicaId);
     boolean existsByEmail(String email);
     boolean existsByCedulaIdentidad(String cedulaIdentidad);

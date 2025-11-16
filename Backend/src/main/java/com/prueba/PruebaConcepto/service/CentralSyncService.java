@@ -1,6 +1,7 @@
 package com.prueba.PruebaConcepto.service;
 
 import com.prueba.PruebaConcepto.Dto.DocumentoCentralDTO;
+import com.prueba.PruebaConcepto.Dto.ProfesionalCentralDTO;
 import com.prueba.PruebaConcepto.Dto.UsuarioCentralDTO;
 import com.prueba.PruebaConcepto.entity.DocumentoClinico;
 import com.prueba.PruebaConcepto.entity.UsuarioDeSalud;
@@ -36,6 +37,15 @@ public class CentralSyncService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<DocumentoCentralDTO> request = new HttpEntity<>(dto, headers);
+        restTemplate.exchange(url, HttpMethod.POST, request, Void.class);
+    }
+
+    // Registrar los profesionales de salud que creen en las clinicas del multi tenant en el central, para control de politicas de acceso etc
+    public void enviarProfesionalAlCentral(ProfesionalCentralDTO dto, String centroId) {
+        String url = centralBaseUrl + "/api/profesionales?centroId=" + centroId;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<ProfesionalCentralDTO> request = new HttpEntity<>(dto, headers);
         restTemplate.exchange(url, HttpMethod.POST, request, Void.class);
     }
 }

@@ -7,8 +7,17 @@ import jakarta.persistence.Id;
 
 @Entity
 public class Especialidad {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
+
     private String nombre;
+
+    public Especialidad() {}
+
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
 }

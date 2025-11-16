@@ -51,7 +51,7 @@ public class DocumentoClinicoService {
     }
 
     @Transactional
-    public DocumentoClinico crearDocumento(String idUsuario, Long idProfesional, DocumentoClinico documento,
+    public DocumentoClinico crearDocumento(String idUsuario, String idProfesional, DocumentoClinico documento,
             String tenantId) {
         Clinica clinica = clinicaRepository.findById(tenantId)
                 .orElseThrow(() -> new IllegalArgumentException("Clínica no encontrada con ID: " + tenantId));
@@ -64,6 +64,7 @@ public class DocumentoClinicoService {
 
         documento.setUsuario(usuario);
         documento.setProfesional(profesional);
+        documento.setClinica(clinica);
 
         // Motivos
         if (documento.getMotivosConsulta() != null) {
@@ -110,7 +111,7 @@ public class DocumentoClinicoService {
         return documentoRepository.findByUsuarioIdAndClinicaId(usuarioId, tenantId);
     }
 
-    public List<DocumentoClinico> listarPorProfesionalYClinica(Long profesionalId, String tenantId) {
+    public List<DocumentoClinico> listarPorProfesionalYClinica(String profesionalId, String tenantId) {
         return documentoRepository.findByProfesional_IdProfesionalAndClinicaId(profesionalId, tenantId);
     }
 

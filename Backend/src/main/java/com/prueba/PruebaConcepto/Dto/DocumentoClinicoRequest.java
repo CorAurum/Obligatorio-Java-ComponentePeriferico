@@ -9,6 +9,6 @@ import lombok.Setter;
 public class DocumentoClinicoRequest {
     private String tenantId;
     private String idUsuario;
-    private Long idProfesional;
+    private String idProfesional;
     private DocumentoClinico documento;
 }

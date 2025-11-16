@@ -14,8 +14,7 @@ import java.util.List;
 public class ProfesionalDeSalud {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idProfesional;
+    private String idProfesional;
 
     private String cedulaIdentidad;
     private String nombre;

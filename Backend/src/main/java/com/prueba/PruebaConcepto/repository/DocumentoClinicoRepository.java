@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface DocumentoClinicoRepository extends JpaRepository<DocumentoClinico, Long> {
     List<DocumentoClinico> findByUsuarioId(Long id);
 
-    List<DocumentoClinico> findByProfesional_IdProfesional(Long idProfesional);
+    List<DocumentoClinico> findByProfesional_IdProfesional(String idProfesional);
 
     public DocumentoClinico findByid(Long id);
 
@@ -21,7 +21,7 @@ public interface DocumentoClinicoRepository extends JpaRepository<DocumentoClini
 
     List<DocumentoClinico> findByUsuarioIdAndClinicaId(Long usuarioId, String clinicaId);
 
-    List<DocumentoClinico> findByProfesional_IdProfesionalAndClinicaId(Long idProfesional, String clinicaId);
+    List<DocumentoClinico> findByProfesional_IdProfesionalAndClinicaId(String idProfesional, String clinicaId);
 
     Optional<DocumentoClinico> findByIdAndClinicaId(Long id, String clinicaId);
 }

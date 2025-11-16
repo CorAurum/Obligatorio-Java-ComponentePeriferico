@@ -37,7 +37,7 @@ public class DocumentoClinicoController {
     }
 
     @GetMapping("/profesional/{profesionalId}")
-    public ResponseEntity<List<DocumentoClinico>> listarPorProfesional(@PathVariable Long profesionalId,
+    public ResponseEntity<List<DocumentoClinico>> listarPorProfesional(@PathVariable String profesionalId,
             @RequestParam String tenantId) {
         return ResponseEntity.ok(documentoService.listarPorProfesionalYClinica(profesionalId, tenantId));
     }
