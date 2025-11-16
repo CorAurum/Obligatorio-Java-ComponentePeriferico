@@ -3,120 +3,92 @@ package com.prueba.PruebaConcepto.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.prueba.PruebaConcepto.Dto.UsuarioDeSaludDto;
-import com.prueba.PruebaConcepto.Dto.UsuarioDeSaludMetadatoDto;
+import com.prueba.PruebaConcepto.Dto.IdentificadorRequest;
+import com.prueba.PruebaConcepto.Dto.UsuarioCentralDTO;
+import com.prueba.PruebaConcepto.Dto.UsuarioRequest;
+import com.prueba.PruebaConcepto.entity.Clinica;
+import com.prueba.PruebaConcepto.Dto.UsuarioMapper;
+import com.prueba.PruebaConcepto.entity.IdentificadorUsuario;
 import com.prueba.PruebaConcepto.entity.UsuarioDeSalud;
+import com.prueba.PruebaConcepto.repository.ClinicaRepository;
 import com.prueba.PruebaConcepto.repository.UsuarioDeSaludRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
-
-import org.springframework.http.*;
-import org.springframework.web.client.RestTemplate;
-
 
 @Service
 public class UsuarioDeSaludService {
 
-    private final UsuarioDeSaludRepository repo;
+    private final UsuarioDeSaludRepository usuarioRepository;
+    private final ClinicaRepository clinicaRepository;
+    private final CentralSyncService centralSyncService;
+    private final UsuarioMapper usuarioMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-    public UsuarioDeSaludService(UsuarioDeSaludRepository repo) {
-        this.repo = repo;
+    public UsuarioDeSaludService(
+            UsuarioDeSaludRepository usuarioRepository,
+            ClinicaRepository clinicaRepository,
+            CentralSyncService centralSyncService,
+            UsuarioMapper usuarioMapper) {
+        this.usuarioRepository = usuarioRepository;
+        this.clinicaRepository = clinicaRepository;
+        this.centralSyncService = centralSyncService;
+        this.usuarioMapper = usuarioMapper;
     }
 
-    public UsuarioDeSaludDto crearUsuario(UsuarioDeSaludDto dto) {
-        UsuarioDeSalud u = new UsuarioDeSalud(
-                dto.cedulaIdentidad(),
-                dto.email(),
-                dto.nombre(),
-                dto.apellido(),
-                dto.direccion(),
-                dto.telefono(),
-                dto.fechaNacimiento(),
-                LocalDate.now()
-        );
+    @Transactional
+    public UsuarioDeSalud crearUsuarioDesdeRequest(UsuarioRequest request) {
+        Clinica clinica = clinicaRepository.findById(request.getTenantId())
+                .orElseThrow(
+                        () -> new IllegalArgumentException("Clínica no encontrada con ID: " + request.getTenantId()));
 
-        UsuarioDeSalud saved = repo.save(u);
+        UsuarioDeSalud usuario = new UsuarioDeSalud();
+        usuario.setNombre(request.getNombres());
+        usuario.setApellido(request.getApellidos());
+        usuario.setFechaNacimiento(request.getFechaNacimiento());
+        usuario.setSexo(request.getSexo());
+        usuario.setDireccion(request.getDireccion());
+        usuario.setEmail(request.getEmail());
+        usuario.setTelefono(request.getTelefono());
+        usuario.setClinica(clinica);
+        usuario.setActivo(true);
+        usuario.setFechaRegistro(LocalDateTime.now());
 
-        // 🔹 Llamar al metodo auxiliar para enviar el metadato al componente central y ahi guardar el usuario tambien
-        enviarMetadato(saved);
+        if (request.getIdentificadores() != null && !request.getIdentificadores().isEmpty()) {
+            List<IdentificadorUsuario> identificadores = new ArrayList<>();
+            for (IdentificadorRequest idReq : request.getIdentificadores()) {
+                IdentificadorUsuario ident = new IdentificadorUsuario();
+                ident.setTipo(idReq.getTipo());
+                ident.setValor(idReq.getValor());
+                ident.setOrigen(idReq.getOrigen());
+                ident.setFechaAlta(LocalDateTime.now());
+                ident.setUsuario(usuario);
+                identificadores.add(ident);
+            }
+            usuario.setIdentificadores(identificadores);
+        }
 
-        return toDto(saved);
-    }
+        UsuarioDeSalud nuevo = usuarioRepository.save(usuario);
 
-    public List<UsuarioDeSaludDto> listarUsuarios() {
-        return repo.findAll().stream().map(this::toDto).collect(Collectors.toList());
-    }
-
-    private UsuarioDeSaludDto toDto(UsuarioDeSalud u) {
-        return new UsuarioDeSaludDto(
-                u.getCedulaIdentidad(),
-                u.getNombre(),
-                u.getApellido(),
-                u.getFechaNacimiento(),
-                u.getEmail(),
-                u.getTelefono(),
-                u.getFechaRegistro(),
-                u.getDireccion()
-        );
-    }
-
-
-    // FUNCIONES PARA INTERACTUAR CON EL COMPONENTE CENTRAL
-    // FUNCIONES PARA INTERACTUAR CON EL COMPONENTE CENTRAL
-    private void enviarMetadato(UsuarioDeSalud usuario) {
-        // URL del endpoint
-        String url = "https://backend.web.elasticloud.uy/api/usuarioSalud/externo";
-
-        // Crear el payload
-        UsuarioDeSaludMetadatoDto metadato = new UsuarioDeSaludMetadatoDto(
-                usuario.getCedulaIdentidad(),
-                usuario.getEmail(),
-                usuario.getNombre(),
-                usuario.getApellido(),
-                usuario.getDireccion(),
-                usuario.getTelefono(),
-                usuario.getFechaNacimiento(),
-                usuario.getFechaRegistro()
-        );
+        UsuarioCentralDTO dto = usuarioMapper.toCentralDTO(nuevo, String.valueOf(clinica.getId()));
 
         try {
-            // Configurar ObjectMapper para enviar fechas como strings ISO
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.registerModule(new JavaTimeModule()); // permite serializar LocalDate y LocalDateTime
-            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // evita que se serialicen como arrays
-
-            // Convertir DTO a JSON
-            String jsonPayload = mapper.writeValueAsString(metadato);
-
-            // LOG para ver exactamente qué se está enviando
-            System.out.println("DEBUG JSON que se va a enviar al backend: " + jsonPayload);
-
-            // Crear RestTemplate y headers
-            RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            // Construir la request con JSON como String
-            HttpEntity<String> request = new HttpEntity<>(jsonPayload, headers);
-
-            // Enviar la POST request
-            ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-
-            if (response.getStatusCode().is2xxSuccessful()) {
-                System.out.println("✅ Metadato de usuario enviado correctamente al endpoint externo.");
-            } else {
-                System.out.println("⚠️ No se pudo enviar el metadato. Código: " + response.getStatusCode());
-            }
-
+            System.out.println("\nJSON ENVIADO AL CENTRAL (Usuario):");
+            System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(dto));
         } catch (Exception e) {
-            System.err.println("❌ Error al enviar metadato del usuario: " + e.getMessage());
-            e.printStackTrace();
+            System.out.println("Error mostrando JSON del usuario: " + e.getMessage());
         }
+
+        centralSyncService.enviarUsuarioAlCentral(dto);
+        return nuevo;
     }
 
-
+    public List<UsuarioDeSalud> listarPorClinica(String tenantId) {
+        return usuarioRepository.findByClinicaId(tenantId);
+    }
 }

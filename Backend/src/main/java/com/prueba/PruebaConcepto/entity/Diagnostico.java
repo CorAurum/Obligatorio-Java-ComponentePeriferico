@@ -3,6 +3,7 @@ package com.prueba.PruebaConcepto.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "diagnosticos")
@@ -15,11 +16,18 @@ public class Diagnostico {
     private Long id;
 
     private String descripcion;
-    private LocalDate fechaInicio;
-    private String estado;
-    private String gradoCerteza;
+    private LocalDateTime fechaInicio;
 
     @ManyToOne
-    @JoinColumn(name = "id_documento")
-    private DocumentoClinico documento;
+    @JoinColumn(name = "grado_certeza_id")
+    private GradoCerteza gradoCerteza;
+
+    @ManyToOne
+    @JoinColumn(name = "estado_problema_id")
+    private EstadoProblema estadoProblema;
+
+    @ManyToOne
+    @JoinColumn(name = "documento_id")
+    private DocumentoClinico documentoClinico;
 }
+

@@ -1,14 +1,15 @@
 package com.prueba.PruebaConcepto.controller;
 
-import java.util.List;
-import com.prueba.PruebaConcepto.Dto.ClinicaDto;
+import com.prueba.PruebaConcepto.entity.Clinica;
 import com.prueba.PruebaConcepto.service.ClinicaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/clinicas")
-@CrossOrigin(origins = "http://localhost:5173")
+@RequestMapping("/api/clinicas")
+//@CrossOrigin(origins = "*")
 public class ClinicaController {
 
     private final ClinicaService clinicaService;
@@ -17,27 +18,21 @@ public class ClinicaController {
         this.clinicaService = clinicaService;
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<ClinicaDto> addClinica(@RequestBody ClinicaDto clinicaDto) {
-        return ResponseEntity.ok(clinicaService.crearClinica(clinicaDto));
+    @PostMapping
+    public ResponseEntity<Clinica> crearClinica(@RequestBody Clinica clinica) {
+        Clinica nueva = clinicaService.crearClinica(clinica);
+        return ResponseEntity.ok(nueva);
     }
 
-    @GetMapping("/list")
-    public ResponseEntity<List<ClinicaDto>> listarClinicas() {
+    @GetMapping
+    public ResponseEntity<List<Clinica>> listarClinicas() {
         return ResponseEntity.ok(clinicaService.listarClinicas());
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<ClinicaDto> updateClinica(
-            @PathVariable Long id,
-            @RequestBody ClinicaDto clinicaDto
-    ) {
-        return ResponseEntity.ok(clinicaService.modificarClinica(id, clinicaDto));
-    }
-
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteClinica(@PathVariable Long id) {
-        clinicaService.eliminarClinica(id);
-        return ResponseEntity.ok("Clinica eliminada con éxito");
+    @GetMapping("/{dominio}")
+    public ResponseEntity<Clinica> obtenerPorDominio(@PathVariable String dominio) {
+        return clinicaService.obtenerPorDominio(dominio)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }
