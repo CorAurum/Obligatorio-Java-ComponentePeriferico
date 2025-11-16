@@ -3,178 +3,118 @@ package com.prueba.PruebaConcepto.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.prueba.PruebaConcepto.Dto.*;
+import com.prueba.PruebaConcepto.Dto.DocumentoCentralDTO;
+import com.prueba.PruebaConcepto.Dto.DocumentoMapper;
 import com.prueba.PruebaConcepto.entity.*;
 import com.prueba.PruebaConcepto.repository.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-
-
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
-
-
-import org.springframework.http.*;
-import org.springframework.web.client.RestTemplate;
-import java.time.format.DateTimeFormatter;
-
 
 @Service
 public class DocumentoClinicoService {
 
-    private final DocumentoClinicoRepository docRepo;
-    private final ClinicaRepository clinicaRepo;
-    private final UsuarioDeSaludRepository usuarioRepo;
-    private final ProfesionalDeSaludRepository profesionalRepo;
+    private final DocumentoClinicoRepository documentoRepository;
+    private final UsuarioDeSaludRepository usuarioRepository;
+    private final ProfesionalDeSaludRepository profesionalRepository;
+    private final MotivoConsultaRepository motivoRepository;
+    private final GradoCertezaRepository gradoCertezaRepository;
+    private final EstadoProblemaRepository estadoProblemaRepository;
+    private final ClinicaRepository clinicaRepository;
+    private final CentralSyncService centralSyncService;
+    private final DocumentoMapper documentoMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-    public DocumentoClinicoService(DocumentoClinicoRepository docRepo,
-                                   ClinicaRepository clinicaRepo,
-                                   UsuarioDeSaludRepository usuarioRepo,
-                                   ProfesionalDeSaludRepository profesionalRepo) {
-        this.docRepo = docRepo;
-        this.clinicaRepo = clinicaRepo;
-        this.usuarioRepo = usuarioRepo;
-        this.profesionalRepo = profesionalRepo;
+    public DocumentoClinicoService(
+            DocumentoClinicoRepository documentoRepository,
+            UsuarioDeSaludRepository usuarioRepository,
+            ProfesionalDeSaludRepository profesionalRepository,
+            MotivoConsultaRepository motivoRepository,
+            GradoCertezaRepository gradoCertezaRepository,
+            EstadoProblemaRepository estadoProblemaRepository,
+            ClinicaRepository clinicaRepository,
+            CentralSyncService centralSyncService,
+            DocumentoMapper documentoMapper) {
+
+        this.documentoRepository = documentoRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.profesionalRepository = profesionalRepository;
+        this.motivoRepository = motivoRepository;
+        this.gradoCertezaRepository = gradoCertezaRepository;
+        this.estadoProblemaRepository = estadoProblemaRepository;
+        this.clinicaRepository = clinicaRepository;
+        this.centralSyncService = centralSyncService;
+        this.documentoMapper = documentoMapper;
     }
 
-    public DocumentoClinicoDto crearDocumento(DocumentoClinicoDto dto) {
-        Clinica clinica = clinicaRepo.findById(dto.idClinica())
-                .orElseThrow(() -> new RuntimeException("Clinica no encontrada"));
-        UsuarioDeSalud usuario = usuarioRepo.findByCedulaIdentidad(dto.cedulaUsuario())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        ProfesionalDeSalud prof = profesionalRepo.findById(dto.idProfesional())
-                .orElseThrow(() -> new RuntimeException("Profesional no encontrado"));
+    @Transactional
+    public DocumentoClinico crearDocumento(String idUsuario, Long idProfesional, DocumentoClinico documento,
+            String tenantId) {
+        Clinica clinica = clinicaRepository.findById(tenantId)
+                .orElseThrow(() -> new IllegalArgumentException("Clínica no encontrada con ID: " + tenantId));
 
-        DocumentoClinico doc = new DocumentoClinico();
-        doc.setFechaCreacion(LocalDateTime.now());
-        doc.setFechaProximaConsultaRecomendada(dto.fechaProximaConsultaRecomendada()); //cambiar
-        doc.setFechaProximaConsultaConfirmada(dto.fechaProximaConsultaConfirmada()); //cambiar
-        doc.setAreaProximoControl(dto.areaProximoControl());
-        doc.setClinica(clinica);
-        doc.setUsuario(usuario);
-        doc.setProfesional(prof);
-        doc.setArea(dto.area());
+        UsuarioDeSalud usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + idUsuario));
 
-        // motivos
-        doc.setMotivosConsulta(dto.motivosConsulta().stream()
-                .map(m -> {
-                    MotivoConsulta mc = new MotivoConsulta();
-                    mc.setMotivo(m.motivo());
-                    mc.setDocumento(doc);
-                    return mc;
-                }).toList());
+        ProfesionalDeSalud profesional = profesionalRepository.findById(idProfesional)
+                .orElseThrow(() -> new IllegalArgumentException("Profesional no encontrado con ID: " + idProfesional));
 
-        // diagnosticos
-        doc.setDiagnosticos(dto.diagnosticos().stream()
-                .map(d -> {
-                    Diagnostico diag = new Diagnostico();
-                    diag.setDescripcion(d.descripcion());
-                    diag.setFechaInicio(d.fechaInicio());
-                    diag.setEstado(d.estado());
-                    diag.setGradoCerteza(d.gradoCerteza());
-                    diag.setDocumento(doc);
-                    return diag;
-                }).toList());
+        documento.setUsuario(usuario);
+        documento.setProfesional(profesional);
 
-        DocumentoClinico saved = docRepo.save(doc);
+        // Motivos
+        if (documento.getMotivosConsulta() != null) {
+            documento.setMotivosConsulta(
+                    documento.getMotivosConsulta().stream()
+                            .map(m -> motivoRepository.findById(m.getId())
+                                    .orElseThrow(() -> new IllegalArgumentException(
+                                            "Motivo no encontrado con ID: " + m.getId())))
+                            .toList());
+        }
 
+        // Diagnósticos
+        if (documento.getDiagnosticos() != null) {
+            for (Diagnostico d : documento.getDiagnosticos()) {
+                d.setDocumentoClinico(documento);
+                d.setGradoCerteza(gradoCertezaRepository.findById(d.getGradoCerteza().getId())
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "Grado de certeza no encontrado con ID: " + d.getGradoCerteza().getId())));
+                d.setEstadoProblema(estadoProblemaRepository.findById(d.getEstadoProblema().getId())
+                        .orElseThrow(() -> new IllegalArgumentException("Estado de problema no encontrado")));
+            }
+        }
 
-        // 🔹 Llamar al metodo auxiliar para enviar el metadato al componente central y que sea registrado
-        enviarMetadato(saved);
+        DocumentoClinico nuevoDoc = documentoRepository.save(documento);
 
-
-        return toDto(saved);
-    }
-
-    public DocumentoClinico obtenerPorId(Long id) {
-        return docRepo.findById(id).orElse(null);
-    }
-
-    public void eliminarDocumento(Long id) {
-        if (!docRepo.existsById(id)) throw new RuntimeException("Documento no encontrado");
-        docRepo.deleteById(id);
-    }
-
-    public List<DocumentoClinicoDto> listarTodos() {
-        return docRepo.findAll().stream().map(this::toDto).collect(Collectors.toList());
-    }
-
-    private DocumentoClinicoDto toDto(DocumentoClinico d) {
-        return new DocumentoClinicoDto(
-                d.getIdDocumento(),
-                d.getArea(),
-                d.getFechaCreacion(),
-                d.getFechaProximaConsultaRecomendada(),
-                d.getFechaProximaConsultaConfirmada(),
-                d.getAreaProximoControl(),
-
-                d.getMotivosConsulta().stream()
-                        .map(m -> new MotivoConsultaDto(m.getId(), m.getMotivo()))
-                        .toList(),
-                d.getDiagnosticos().stream()
-                        .map(di -> new DiagnosticoDto(di.getId(), di.getDescripcion(),
-                                di.getFechaInicio(), di.getEstado(), di.getGradoCerteza()))
-                        .toList(),
-                d.getClinica() != null ? d.getClinica().getId() : null,
-                d.getUsuario() != null ? d.getUsuario().getCedulaIdentidad() : null,
-                d.getProfesional() != null ? d.getProfesional().getIdProfesional() : null
-
-        );
-    }
-
-
-    // FUNCIONES RELACIONADAS AL COMPONENTE CENTRAL
-
-
-    private void enviarMetadato(DocumentoClinico documento) {
-        // URL del endpoint al que vas a enviar el metadato
-        String url = "https://backend.web.elasticloud.uy/api/documentoClinico/externo";
-
-        // Crear el payload
-        DocumentoMetadatoDto metadato = new DocumentoMetadatoDto(
-                documento.getIdDocumento(),
-                documento.getProfesional().getIdProfesional(),
-                documento.getUsuario().getCedulaIdentidad(),
-                documento.getClinica().getId(),
-                documento.getArea(),
-                documento.getUsuario().getCedulaIdentidad()
-        );
+        DocumentoCentralDTO dto = documentoMapper.toCentralDTO(nuevoDoc, String.valueOf(clinica.getId()));
 
         try {
-
-            ObjectMapper mapperDocumentoClinico = new ObjectMapper();
-            mapperDocumentoClinico.registerModule(new JavaTimeModule()); // permite serializar LocalDate y LocalDateTime
-            mapperDocumentoClinico.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // evita que se serialicen como arrays
-
-            // Convertir DTO a JSON
-            String jsonPayload = mapperDocumentoClinico.writeValueAsString(metadato);
-
-            // LOG para ver exactamente qué se está enviando
-            System.out.println("DEBUG JSON que se va a enviar al backend: " + jsonPayload);
-
-            // Crear RestTemplate y headers
-            RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            // Construir la request con JSON como String
-            HttpEntity<String> request = new HttpEntity<>(jsonPayload, headers);
-
-            // Enviar la POST request
-            ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-
-            if (response.getStatusCode().is2xxSuccessful()) {
-                System.out.println("✅ Metadato enviado correctamente al endpoint externo.");
-            } else {
-                System.out.println("⚠️ No se pudo enviar el metadato. Código: " + response.getStatusCode());
-            }
+            System.out.println("\nJSON ENVIADO AL CENTRAL (Documento Clínico):");
+            System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(dto));
         } catch (Exception e) {
-            System.err.println("❌ Error al enviar metadato: " + e.getMessage());
+            System.out.println("Error mostrando JSON del documento: " + e.getMessage());
         }
+
+        centralSyncService.enviarDocumentoAlCentral(dto);
+        return nuevoDoc;
     }
 
+    public List<DocumentoClinico> listarPorClinica(String tenantId) {
+        return documentoRepository.findByClinicaId(tenantId);
+    }
 
+    public List<DocumentoClinico> listarPorUsuarioYClinica(Long usuarioId, String tenantId) {
+        return documentoRepository.findByUsuarioIdAndClinicaId(usuarioId, tenantId);
+    }
 
+    public List<DocumentoClinico> listarPorProfesionalYClinica(Long profesionalId, String tenantId) {
+        return documentoRepository.findByProfesional_IdProfesionalAndClinicaId(profesionalId, tenantId);
+    }
 
+    public DocumentoClinico listarPorIdYClinica(Long id, String tenantId) {
+        return documentoRepository.findByIdAndClinicaId(id, tenantId).orElse(null);
+    }
 }

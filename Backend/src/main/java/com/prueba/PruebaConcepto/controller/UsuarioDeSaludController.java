@@ -1,6 +1,7 @@
 package com.prueba.PruebaConcepto.controller;
 
-import com.prueba.PruebaConcepto.Dto.UsuarioDeSaludDto;
+import com.prueba.PruebaConcepto.Dto.UsuarioRequest;
+import com.prueba.PruebaConcepto.entity.UsuarioDeSalud;
 import com.prueba.PruebaConcepto.service.UsuarioDeSaludService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -8,23 +9,23 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/usuarios-salud")
-@CrossOrigin(origins = "http://localhost:5173")
+@RequestMapping("/api/usuarios")
 public class UsuarioDeSaludController {
 
-    private final UsuarioDeSaludService service;
+    private final UsuarioDeSaludService usuarioService;
 
-    public UsuarioDeSaludController(UsuarioDeSaludService service) {
-        this.service = service;
+    public UsuarioDeSaludController(UsuarioDeSaludService usuarioService) {
+        this.usuarioService = usuarioService;
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<UsuarioDeSaludDto> add(@RequestBody UsuarioDeSaludDto dto) {
-        return ResponseEntity.ok(service.crearUsuario(dto));
+    @PostMapping
+    public ResponseEntity<UsuarioDeSalud> crearUsuario(@RequestBody UsuarioRequest request) {
+        UsuarioDeSalud creado = usuarioService.crearUsuarioDesdeRequest(request);
+        return ResponseEntity.status(201).body(creado);
     }
 
-    @GetMapping("/list")
-    public ResponseEntity<List<UsuarioDeSaludDto>> list() {
-        return ResponseEntity.ok(service.listarUsuarios());
+    @GetMapping
+    public ResponseEntity<List<UsuarioDeSalud>> listarUsuarios(@RequestParam String tenantId) {
+        return ResponseEntity.ok(usuarioService.listarPorClinica(tenantId));
     }
 }

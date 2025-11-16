@@ -1,48 +1,57 @@
 package com.prueba.PruebaConcepto.service;
 
-import com.prueba.PruebaConcepto.Dto.ProfesionalDeSaludDto;
+import com.prueba.PruebaConcepto.entity.Clinica;
+import com.prueba.PruebaConcepto.entity.Especialidad;
 import com.prueba.PruebaConcepto.entity.ProfesionalDeSalud;
+import com.prueba.PruebaConcepto.repository.ClinicaRepository;
+import com.prueba.PruebaConcepto.repository.EspecialidadRepository;
 import com.prueba.PruebaConcepto.repository.ProfesionalDeSaludRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ProfesionalDeSaludService {
 
-    private final ProfesionalDeSaludRepository repo;
+    private final ProfesionalDeSaludRepository profesionalRepository;
+    private final ClinicaRepository clinicaRepository;
+    private final EspecialidadRepository especialidadRepository;
 
-    public ProfesionalDeSaludService(ProfesionalDeSaludRepository repo) {
-        this.repo = repo;
+    public ProfesionalDeSaludService(ProfesionalDeSaludRepository profesionalRepository,
+            ClinicaRepository clinicaRepository,
+            EspecialidadRepository especialidadRepository) {
+        this.profesionalRepository = profesionalRepository;
+        this.clinicaRepository = clinicaRepository;
+        this.especialidadRepository = especialidadRepository;
     }
 
-    public ProfesionalDeSaludDto crearProfesional(ProfesionalDeSaludDto dto) {
-        ProfesionalDeSalud p = new ProfesionalDeSalud(
-                null,
-                dto.cedulaIdentidad(),
-                dto.nombre(),
-                dto.apellido(),
-                dto.numeroRegistro(),
-                dto.email(),
-                dto.telefono()
-        );
-        return toDto(repo.save(p));
+    public ProfesionalDeSalud crearProfesional(ProfesionalDeSalud profesional, List<String> especialidadesNombres,
+            String tenantId) {
+        if (profesionalRepository.existsByEmail(profesional.getEmail())) {
+            throw new IllegalArgumentException("Ya existe un profesional con ese correo");
+        }
+        if (profesionalRepository.existsByCedulaIdentidad(profesional.getCedulaIdentidad())) {
+            throw new IllegalArgumentException("Ya existe un profesional con esa cédula");
+        }
+
+        Clinica clinica = clinicaRepository.findById(tenantId)
+                .orElseThrow(() -> new IllegalArgumentException("Clínica no encontrada con ID: " + tenantId));
+
+        List<Especialidad> especialidades = new ArrayList<>();
+        for (String nombreEsp : especialidadesNombres) {
+            Especialidad esp = especialidadRepository.findByNombre(nombreEsp)
+                    .orElseThrow(() -> new IllegalArgumentException("Especialidad no encontrada: " + nombreEsp));
+            especialidades.add(esp);
+        }
+
+        profesional.setClinica(clinica);
+        profesional.setEspecialidades(especialidades);
+
+        return profesionalRepository.save(profesional);
     }
 
-    public List<ProfesionalDeSaludDto> listarProfesionales() {
-        return repo.findAll().stream().map(this::toDto).collect(Collectors.toList());
-    }
-
-    private ProfesionalDeSaludDto toDto(ProfesionalDeSalud p) {
-        return new ProfesionalDeSaludDto(
-                p.getIdProfesional(),
-                p.getCedulaIdentidad(),
-                p.getNombre(),
-                p.getApellido(),
-                p.getNumeroRegistro(),
-                p.getEmail(),
-                p.getTelefono()
-        );
+    public List<ProfesionalDeSalud> listarPorClinica(String tenantId) {
+        return profesionalRepository.findByClinicaId(tenantId);
     }
 }
