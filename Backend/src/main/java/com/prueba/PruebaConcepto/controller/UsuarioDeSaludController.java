@@ -25,7 +25,7 @@ public class UsuarioDeSaludController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UsuarioDeSalud>> listarUsuarios() {
-        return ResponseEntity.ok(usuarioService.listarPorClinicaActual());
+    public ResponseEntity<List<UsuarioDeSalud>> listarUsuarios(@RequestParam String tenantId) {
+        return ResponseEntity.ok(usuarioService.listarPorClinica(tenantId));
     }
 }

@@ -7,9 +7,10 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.util.List;
 
-@Getter @Setter
+@Getter
+@Setter
 public class UsuarioRequest {
-    // Si usás path variable para clinica, no hace falta enviar centroId aquí.
+    private String tenantId;
     private String nombres;
     private String apellidos;
     private LocalDate fechaNacimiento;
@@ -19,4 +20,3 @@ public class UsuarioRequest {
     private String telefono;
     private List<IdentificadorRequest> identificadores;
 }
-

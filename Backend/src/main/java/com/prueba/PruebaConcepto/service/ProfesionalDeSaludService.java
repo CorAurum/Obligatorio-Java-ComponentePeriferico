@@ -6,7 +6,6 @@ import com.prueba.PruebaConcepto.entity.ProfesionalDeSalud;
 import com.prueba.PruebaConcepto.repository.ClinicaRepository;
 import com.prueba.PruebaConcepto.repository.EspecialidadRepository;
 import com.prueba.PruebaConcepto.repository.ProfesionalDeSaludRepository;
-import com.prueba.PruebaConcepto.tenant.TenantContext;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -20,14 +19,15 @@ public class ProfesionalDeSaludService {
     private final EspecialidadRepository especialidadRepository;
 
     public ProfesionalDeSaludService(ProfesionalDeSaludRepository profesionalRepository,
-                                     ClinicaRepository clinicaRepository,
-                                     EspecialidadRepository especialidadRepository) {
+            ClinicaRepository clinicaRepository,
+            EspecialidadRepository especialidadRepository) {
         this.profesionalRepository = profesionalRepository;
         this.clinicaRepository = clinicaRepository;
         this.especialidadRepository = especialidadRepository;
     }
 
-    public ProfesionalDeSalud crearProfesional(ProfesionalDeSalud profesional, List<String> especialidadesNombres) {
+    public ProfesionalDeSalud crearProfesional(ProfesionalDeSalud profesional, List<String> especialidadesNombres,
+            String tenantId) {
         if (profesionalRepository.existsByEmail(profesional.getEmail())) {
             throw new IllegalArgumentException("Ya existe un profesional con ese correo");
         }
@@ -35,9 +35,8 @@ public class ProfesionalDeSaludService {
             throw new IllegalArgumentException("Ya existe un profesional con esa cédula");
         }
 
-        String clinicaId = TenantContext.getClinicaId();
-        Clinica clinica = clinicaRepository.findById(clinicaId)
-                .orElseThrow(() -> new IllegalArgumentException("Clínica no encontrada con ID: " + clinicaId));
+        Clinica clinica = clinicaRepository.findById(tenantId)
+                .orElseThrow(() -> new IllegalArgumentException("Clínica no encontrada con ID: " + tenantId));
 
         List<Especialidad> especialidades = new ArrayList<>();
         for (String nombreEsp : especialidadesNombres) {
@@ -52,8 +51,7 @@ public class ProfesionalDeSaludService {
         return profesionalRepository.save(profesional);
     }
 
-    public List<ProfesionalDeSalud> listarPorClinicaActual() {
-        String clinicaId = TenantContext.getClinicaId();
-        return profesionalRepository.findByClinicaId(clinicaId);
+    public List<ProfesionalDeSalud> listarPorClinica(String tenantId) {
+        return profesionalRepository.findByClinicaId(tenantId);
     }
 }

@@ -12,7 +12,6 @@ import com.prueba.PruebaConcepto.entity.IdentificadorUsuario;
 import com.prueba.PruebaConcepto.entity.UsuarioDeSalud;
 import com.prueba.PruebaConcepto.repository.ClinicaRepository;
 import com.prueba.PruebaConcepto.repository.UsuarioDeSaludRepository;
-import com.prueba.PruebaConcepto.tenant.TenantContext;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -44,9 +43,9 @@ public class UsuarioDeSaludService {
 
     @Transactional
     public UsuarioDeSalud crearUsuarioDesdeRequest(UsuarioRequest request) {
-        String clinicaId = TenantContext.getClinicaId();
-        Clinica clinica = clinicaRepository.findById(clinicaId)
-                .orElseThrow(() -> new IllegalArgumentException("Clínica no encontrada con ID: " + clinicaId));
+        Clinica clinica = clinicaRepository.findById(request.getTenantId())
+                .orElseThrow(
+                        () -> new IllegalArgumentException("Clínica no encontrada con ID: " + request.getTenantId()));
 
         UsuarioDeSalud usuario = new UsuarioDeSalud();
         usuario.setNombre(request.getNombres());
@@ -89,8 +88,7 @@ public class UsuarioDeSaludService {
         return nuevo;
     }
 
-    public List<UsuarioDeSalud> listarPorClinicaActual() {
-        String clinicaId = TenantContext.getClinicaId();
-        return usuarioRepository.findByClinicaId(clinicaId);
+    public List<UsuarioDeSalud> listarPorClinica(String tenantId) {
+        return usuarioRepository.findByClinicaId(tenantId);
     }
 }

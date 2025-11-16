@@ -7,7 +7,6 @@ import com.prueba.PruebaConcepto.Dto.DocumentoCentralDTO;
 import com.prueba.PruebaConcepto.Dto.DocumentoMapper;
 import com.prueba.PruebaConcepto.entity.*;
 import com.prueba.PruebaConcepto.repository.*;
-import com.prueba.PruebaConcepto.tenant.TenantContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,14 +51,10 @@ public class DocumentoClinicoService {
     }
 
     @Transactional
-    public DocumentoClinico crearDocumento(String idUsuario, Long idProfesional, DocumentoClinico documento) {
-        String clinicaId = TenantContext.getClinicaId();
-        if (clinicaId == null) {
-            throw new IllegalStateException("No se encontró un tenant activo en el contexto");
-        }
-
-        Clinica clinica = clinicaRepository.findById(clinicaId)
-                .orElseThrow(() -> new IllegalArgumentException("Clínica no encontrada con ID: " + clinicaId));
+    public DocumentoClinico crearDocumento(String idUsuario, Long idProfesional, DocumentoClinico documento,
+            String tenantId) {
+        Clinica clinica = clinicaRepository.findById(tenantId)
+                .orElseThrow(() -> new IllegalArgumentException("Clínica no encontrada con ID: " + tenantId));
 
         UsuarioDeSalud usuario = usuarioRepository.findById(idUsuario)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + idUsuario));
@@ -75,9 +70,9 @@ public class DocumentoClinicoService {
             documento.setMotivosConsulta(
                     documento.getMotivosConsulta().stream()
                             .map(m -> motivoRepository.findById(m.getId())
-                                    .orElseThrow(() -> new IllegalArgumentException("Motivo no encontrado con ID: " + m.getId())))
-                            .toList()
-            );
+                                    .orElseThrow(() -> new IllegalArgumentException(
+                                            "Motivo no encontrado con ID: " + m.getId())))
+                            .toList());
         }
 
         // Diagnósticos
@@ -85,7 +80,8 @@ public class DocumentoClinicoService {
             for (Diagnostico d : documento.getDiagnosticos()) {
                 d.setDocumentoClinico(documento);
                 d.setGradoCerteza(gradoCertezaRepository.findById(d.getGradoCerteza().getId())
-                        .orElseThrow(() -> new IllegalArgumentException("Grado de certeza no encontrado con ID: " + d.getGradoCerteza().getId())));
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "Grado de certeza no encontrado con ID: " + d.getGradoCerteza().getId())));
                 d.setEstadoProblema(estadoProblemaRepository.findById(d.getEstadoProblema().getId())
                         .orElseThrow(() -> new IllegalArgumentException("Estado de problema no encontrado")));
             }
@@ -106,20 +102,19 @@ public class DocumentoClinicoService {
         return nuevoDoc;
     }
 
-    public List<DocumentoClinico> listarPorClinicaActual() {
-        String clinicaId = TenantContext.getClinicaId();
-        return documentoRepository.findByClinicaId(clinicaId);
+    public List<DocumentoClinico> listarPorClinica(String tenantId) {
+        return documentoRepository.findByClinicaId(tenantId);
     }
 
-    public List<DocumentoClinico> listarPorUsuario(Long usuarioId) {
-        return documentoRepository.findByUsuarioId(usuarioId);
+    public List<DocumentoClinico> listarPorUsuarioYClinica(Long usuarioId, String tenantId) {
+        return documentoRepository.findByUsuarioIdAndClinicaId(usuarioId, tenantId);
     }
 
-    public List<DocumentoClinico> listarPorProfesional(Long profesionalId) {
-        return documentoRepository.findByProfesional_IdProfesional(profesionalId);
+    public List<DocumentoClinico> listarPorProfesionalYClinica(Long profesionalId, String tenantId) {
+        return documentoRepository.findByProfesional_IdProfesionalAndClinicaId(profesionalId, tenantId);
     }
 
-    public DocumentoClinico listarPorId(Long id) {
-        return documentoRepository.findById(id).orElse(null);
+    public DocumentoClinico listarPorIdYClinica(Long id, String tenantId) {
+        return documentoRepository.findByIdAndClinicaId(id, tenantId).orElse(null);
     }
 }

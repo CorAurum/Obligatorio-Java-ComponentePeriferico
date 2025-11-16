@@ -18,18 +18,20 @@ public class ProfesionalDeSaludController {
     }
 
     public static class ProfesionalRequest {
+        public String tenantId;
         public ProfesionalDeSalud profesional;
         public List<String> especialidades;
     }
 
     @PostMapping
     public ResponseEntity<ProfesionalDeSalud> crearProfesional(@RequestBody ProfesionalRequest request) {
-        ProfesionalDeSalud nuevo = profesionalService.crearProfesional(request.profesional, request.especialidades);
+        ProfesionalDeSalud nuevo = profesionalService.crearProfesional(request.profesional, request.especialidades,
+                request.tenantId);
         return ResponseEntity.ok(nuevo);
     }
 
     @GetMapping
-    public ResponseEntity<List<ProfesionalDeSalud>> listarProfesionales() {
-        return ResponseEntity.ok(profesionalService.listarPorClinicaActual());
+    public ResponseEntity<List<ProfesionalDeSalud>> listarProfesionales(@RequestParam String tenantId) {
+        return ResponseEntity.ok(profesionalService.listarPorClinica(tenantId));
     }
 }

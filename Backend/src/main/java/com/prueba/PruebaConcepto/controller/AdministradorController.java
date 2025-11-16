@@ -1,5 +1,6 @@
 package com.prueba.PruebaConcepto.controller;
 
+import com.prueba.PruebaConcepto.Dto.AdministradorRequest;
 import com.prueba.PruebaConcepto.entity.Administrador;
 import com.prueba.PruebaConcepto.service.AdministradorService;
 import org.springframework.http.ResponseEntity;
@@ -17,17 +18,17 @@ public class AdministradorController {
         this.administradorService = administradorService;
     }
 
-    // Crear administrador en la clínica actual
+    // Crear administrador en la clínica especificada
     @PostMapping
-    public ResponseEntity<Administrador> crearAdministrador(@RequestBody Administrador administrador) {
-        Administrador nuevo = administradorService.crearAdministrador(administrador);
+    public ResponseEntity<Administrador> crearAdministrador(@RequestBody AdministradorRequest request) {
+        Administrador nuevo = administradorService.crearAdministrador(request.getAdministrador(),
+                request.getTenantId());
         return ResponseEntity.ok(nuevo);
     }
 
-    // Listar administradores solo de la clínica actual
+    // Listar administradores solo de la clínica especificada
     @GetMapping
-    public ResponseEntity<List<Administrador>> listarAdministradores() {
-        return ResponseEntity.ok(administradorService.listarPorClinicaActual());
+    public ResponseEntity<List<Administrador>> listarAdministradores(@RequestParam String tenantId) {
+        return ResponseEntity.ok(administradorService.listarPorClinica(tenantId));
     }
 }
-
