@@ -17,6 +17,8 @@ public class Administrador {
 
     private String nombre;
     private String apellido;
+    // Agregamos atributo cedula para maniobrar en el front - experimental
+    private String cedula;
     private String email;
     private String usuario;
     private String CreadorPor;

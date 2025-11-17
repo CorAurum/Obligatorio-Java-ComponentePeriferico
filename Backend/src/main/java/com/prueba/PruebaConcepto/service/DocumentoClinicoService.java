@@ -204,4 +204,7 @@ public class DocumentoClinicoService {
     public DocumentoClinico listarPorId(Long id) {
         return documentoRepository.findById(id).orElse(null);
     }
+
+
+
 }

@@ -35,4 +35,12 @@ public class ClinicaController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/averiguar/{CI}")
+    public ResponseEntity<String> obtenerPorCI(@PathVariable String CI) {
+        return clinicaService.obtenerClinicaIdPorCedula(CI)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
 }
