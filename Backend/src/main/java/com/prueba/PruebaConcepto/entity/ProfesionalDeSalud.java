@@ -21,7 +21,6 @@ public class ProfesionalDeSalud {
     private String apellido;
     private String email;
     private String telefono;
-    private String contrasena;
 
     @ManyToOne
     @JoinColumn(name = "clinica_id")

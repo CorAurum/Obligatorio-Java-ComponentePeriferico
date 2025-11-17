@@ -22,7 +22,6 @@ public class Administrador {
     private String email;
     private String usuario;
     private String CreadorPor;
-    private String contrasena; // almacenada con hash+salt
     private boolean activo = true;
 
     @ManyToOne

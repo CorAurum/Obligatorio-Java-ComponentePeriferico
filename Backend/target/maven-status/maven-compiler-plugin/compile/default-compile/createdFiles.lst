@@ -6,6 +6,7 @@ com\prueba\PruebaConcepto\repository\MotivoConsultaRepository.class
 com\prueba\PruebaConcepto\repository\ClinicaRepository.class
 com\prueba\PruebaConcepto\PruebaConceptoApplication.class
 com\prueba\PruebaConcepto\entity\Clinica.class
+com\prueba\PruebaConcepto\controller\EspecialidadController.class
 com\prueba\PruebaConcepto\Dto\DocumentoMapper.class
 com\prueba\PruebaConcepto\controller\UsuarioDeSaludController.class
 com\prueba\PruebaConcepto\repository\ProfesionalDeSaludRepository.class
@@ -27,6 +28,7 @@ com\prueba\PruebaConcepto\service\ProfesionalDeSaludService.class
 com\prueba\PruebaConcepto\repository\EstadoProblemaRepository.class
 com\prueba\PruebaConcepto\entity\ProfesionalDeSalud.class
 com\prueba\PruebaConcepto\repository\DocumentoClinicoRepository.class
+com\prueba\PruebaConcepto\Dto\ProfesionalCentralDTO.class
 com\prueba\PruebaConcepto\service\CentralSyncService.class
 com\prueba\PruebaConcepto\entity\Administrador.class
 com\prueba\PruebaConcepto\Dto\UsuarioRequest.class
