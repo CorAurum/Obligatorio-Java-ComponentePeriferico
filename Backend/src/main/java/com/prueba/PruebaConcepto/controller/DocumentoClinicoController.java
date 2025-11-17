@@ -1,5 +1,6 @@
 package com.prueba.PruebaConcepto.controller;
 
+import com.prueba.PruebaConcepto.Dto.DocumentoClinicoParaUsuarioDTO;
 import com.prueba.PruebaConcepto.Dto.DocumentoClinicoRequest;
 import com.prueba.PruebaConcepto.entity.DocumentoClinico;
 import com.prueba.PruebaConcepto.service.DocumentoClinicoService;
@@ -47,4 +48,25 @@ public class DocumentoClinicoController {
         DocumentoClinico doc = documentoService.listarPorIdYClinica(id, tenantId);
         return ResponseEntity.ok(doc);
     }
+
+    // ESTE GET DEVUELVE AL CENTRAL UN DTO CON EL DOCUMENTO CLINICO ENTERO
+
+
+    @GetMapping("/{id}/detalle")
+    public ResponseEntity<DocumentoClinicoParaUsuarioDTO> obtenerDetalleParaCentral(
+            @PathVariable Long id) {
+
+        // Buscar documento por id (y opcionalmente por tenant si querés controlar multi-tenant)
+        DocumentoClinico doc = documentoService.listarPorId(id /* opción: tenantId si querés */);
+        if (doc == null) {
+            return ResponseEntity.status(404).build();
+        }
+
+        // Mapear a DTO legible
+        DocumentoClinicoParaUsuarioDTO dto = documentoService.mapDocumentoAParaUsuarioDTO(doc);
+
+        return ResponseEntity.ok(dto);
+    }
+
+
 }
