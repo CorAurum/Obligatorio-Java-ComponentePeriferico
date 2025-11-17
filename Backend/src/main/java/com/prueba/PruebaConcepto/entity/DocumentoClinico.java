@@ -20,8 +20,7 @@ import java.util.List;
 public class DocumentoClinico {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     private String area;
     private String areaProximoControl;

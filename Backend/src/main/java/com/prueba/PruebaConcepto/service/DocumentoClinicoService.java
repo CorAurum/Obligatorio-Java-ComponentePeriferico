@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class DocumentoClinicoService {
@@ -74,6 +75,7 @@ public class DocumentoClinicoService {
         documento.setUsuario(usuario);
         documento.setProfesional(profesional);
         documento.setClinica(clinica);
+        documento.setId(UUID.randomUUID().toString());
 
         // Motivos (resolución a entidades existentes)
         if (documento.getMotivosConsulta() != null) {
@@ -197,11 +199,11 @@ public class DocumentoClinicoService {
         return documentoRepository.findByProfesional_IdProfesionalAndClinicaId(profesionalId, tenantId);
     }
 
-    public DocumentoClinico listarPorIdYClinica(Long id, String tenantId) {
+    public DocumentoClinico listarPorIdYClinica(String id, String tenantId) {
         return documentoRepository.findByIdAndClinicaId(id, tenantId).orElse(null);
     }
 
-    public DocumentoClinico listarPorId(Long id) {
+    public DocumentoClinico listarPorId(String id) {
         return documentoRepository.findById(id).orElse(null);
     }
 

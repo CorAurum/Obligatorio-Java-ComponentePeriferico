@@ -44,7 +44,7 @@ public class DocumentoClinicoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DocumentoClinico> obtenerPorId(@PathVariable Long id, @RequestParam String tenantId) {
+    public ResponseEntity<DocumentoClinico> obtenerPorId(@PathVariable String id, @RequestParam String tenantId) {
         DocumentoClinico doc = documentoService.listarPorIdYClinica(id, tenantId);
         return ResponseEntity.ok(doc);
     }
@@ -54,7 +54,7 @@ public class DocumentoClinicoController {
 
     @GetMapping("/{id}/detalle")
     public ResponseEntity<DocumentoClinicoParaUsuarioDTO> obtenerDetalleParaCentral(
-            @PathVariable Long id) {
+            @PathVariable String id) {
 
         // Buscar documento por id (y opcionalmente por tenant si querés controlar multi-tenant)
         DocumentoClinico doc = documentoService.listarPorId(id /* opción: tenantId si querés */);
