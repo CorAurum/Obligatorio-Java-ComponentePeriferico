@@ -153,7 +153,7 @@ public class DocumentoClinicoService {
         documentoDto.setTitulo(doc.getTitulo());
         documentoDto.setDescripcion(doc.getDescripcion());
         documentoDto.setTipoDocumento(doc.getTipoDocumento());
-        documentoDto.setFechaCreacion(LocalDateTime.parse(doc.getFechaCreacion()));
+        documentoDto.setFechaCreacion(doc.getFechaCreacion());
         documentoDto.setFechaProximaConsultaConfirmada(doc.getFechaProximaConsultaConfirmada());
 
         // Motivos: lista de nombres
