@@ -1,12 +1,15 @@
 package com.prueba.PruebaConcepto.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
 
 @Entity
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idProfesional")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -21,7 +24,6 @@ public class ProfesionalDeSalud {
     private String apellido;
     private String email;
     private String telefono;
-    private String contrasena;
 
     @ManyToOne
     @JoinColumn(name = "clinica_id")
@@ -33,5 +35,6 @@ public class ProfesionalDeSalud {
     private List<Especialidad> especialidades;
 
     @OneToMany(mappedBy = "profesional")
+    @JsonIdentityReference(alwaysAsId = true)
     private List<DocumentoClinico> documentos;
 }

@@ -45,6 +45,10 @@ public class ClinicaService {
         return clinicaRepository.findAll();
     }
 
+    public Optional<Clinica> obtenerPorId(String id) {
+        return clinicaRepository.findById(id);
+    }
+
     public Optional<Clinica> obtenerPorDominio(String dominio) {
         return clinicaRepository.findByDominioSubdominio(dominio);
     }

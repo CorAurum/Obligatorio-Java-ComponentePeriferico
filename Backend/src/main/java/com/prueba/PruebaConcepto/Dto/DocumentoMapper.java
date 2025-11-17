@@ -17,7 +17,7 @@ public class DocumentoMapper {
         dto.setDescripcion(doc.getDescripcion());
         dto.setTipoDocumento(doc.getTipoDocumento());
         dto.setArea(doc.getArea());
-        dto.setFechaCreacion(LocalDateTime.parse(doc.getFechaCreacion()));
+        dto.setFechaCreacion(doc.getFechaCreacion());
         dto.setUrlAlojamiento(doc.getUrlAlojamiento() != null ?
                 doc.getUrlAlojamiento() :
                 "https://placeholder.docs/" + doc.getId());

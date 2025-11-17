@@ -6,6 +6,7 @@ com\prueba\PruebaConcepto\repository\MotivoConsultaRepository.class
 com\prueba\PruebaConcepto\repository\ClinicaRepository.class
 com\prueba\PruebaConcepto\PruebaConceptoApplication.class
 com\prueba\PruebaConcepto\entity\Clinica.class
+com\prueba\PruebaConcepto\controller\EspecialidadController.class
 com\prueba\PruebaConcepto\Dto\DocumentoMapper.class
 com\prueba\PruebaConcepto\controller\UsuarioDeSaludController.class
 com\prueba\PruebaConcepto\repository\ProfesionalDeSaludRepository.class
@@ -18,6 +19,7 @@ com\prueba\PruebaConcepto\Dto\DocumentoCentralDTO.class
 com\prueba\PruebaConcepto\repository\GradoCertezaRepository.class
 com\prueba\PruebaConcepto\repository\IdentificadorUsuarioRepository.class
 com\prueba\PruebaConcepto\entity\DocumentoClinico.class
+com\prueba\PruebaConcepto\Dto\DocumentoClinicoParaUsuarioDTO$DocumentoDTO.class
 com\prueba\PruebaConcepto\controller\ProfesionalDeSaludController$ProfesionalRequest.class
 com\prueba\PruebaConcepto\service\DocumentoClinicoService.class
 com\prueba\PruebaConcepto\controller\ClinicaController.class
@@ -27,15 +29,19 @@ com\prueba\PruebaConcepto\service\ProfesionalDeSaludService.class
 com\prueba\PruebaConcepto\repository\EstadoProblemaRepository.class
 com\prueba\PruebaConcepto\entity\ProfesionalDeSalud.class
 com\prueba\PruebaConcepto\repository\DocumentoClinicoRepository.class
+com\prueba\PruebaConcepto\Dto\ProfesionalCentralDTO.class
 com\prueba\PruebaConcepto\service\CentralSyncService.class
 com\prueba\PruebaConcepto\entity\Administrador.class
 com\prueba\PruebaConcepto\Dto\UsuarioRequest.class
+com\prueba\PruebaConcepto\Dto\DocumentoClinicoParaUsuarioDTO$DiagnosticoDTO.class
 com\prueba\PruebaConcepto\repository\UsuarioDeSaludRepository.class
 com\prueba\PruebaConcepto\Dto\IdentificadorCentralDTO.class
 com\prueba\PruebaConcepto\Dto\DocumentoClinicoRequest.class
+com\prueba\PruebaConcepto\Dto\DocumentoClinicoParaUsuarioDTO.class
 com\prueba\PruebaConcepto\entity\MotivoConsulta.class
 com\prueba\PruebaConcepto\Dto\AdministradorRequest.class
 com\prueba\PruebaConcepto\entity\IdentificadorUsuario.class
+com\prueba\PruebaConcepto\config\CorsFilter.class
 com\prueba\PruebaConcepto\controller\AdministradorController.class
 com\prueba\PruebaConcepto\entity\EstadoProblema.class
 com\prueba\PruebaConcepto\entity\GradoCerteza.class

@@ -2,6 +2,20 @@
 
 This file contains ready-to-copy JSON payloads for testing the refactored API endpoints with Postman/Yaak. All tenant-scoped endpoints require a `tenantId` parameter.
 
+## Important Notes for Testing
+
+### ✅ **Central System Sync is Optional**
+
+The API will work even when the central system (`http://localhost:8080/CompC-1.0-SNAPSHOT`) is not running. Central sync failures are logged as warnings but won't break your API operations.
+
+**What you'll see in logs when central system is down:**
+
+```
+Warning: Could not sync user to central system: I/O error on POST request for "http://localhost:8080/CompC-1.0-SNAPSHOT/api/usuarios/externo": Connection refused: connect
+```
+
+**This is expected and normal for local testing!** Your data will still be saved locally.
+
 ## Setup Instructions
 
 1. **Base URL**: `http://localhost:8081/api/` (adjust port as needed)
@@ -47,7 +61,6 @@ GET http://localhost:8081/api/clinicas/clinicacentral.com
     "apellido": "Pérez",
     "email": "juan.perez@clinicacentral.com",
     "usuario": "jperez",
-    "contrasena": "$2a$10$hashed_password_here",
     "creadorPor": "system"
   }
 }
@@ -122,8 +135,7 @@ GET http://localhost:8081/api/usuarios?tenantId=clinic-uuid-123
     "nombre": "Dra. Ana María",
     "apellido": "Silva López",
     "email": "ana.silva@clinicacentral.com",
-    "telefono": "+59898123456",
-    "contrasena": "$2a$10$hashed_password_here"
+    "telefono": "+59898123456"
   },
   "especialidades": ["Medicina General", "Pediatría"]
 }
@@ -139,8 +151,7 @@ GET http://localhost:8081/api/usuarios?tenantId=clinic-uuid-123
     "nombre": "Dr. Roberto",
     "apellido": "Fernández",
     "email": "roberto.fernandez@clinicacentral.com",
-    "telefono": "+59898246813",
-    "contrasena": "$2a$10$hashed_password_here"
+    "telefono": "+59898246813"
   },
   "especialidades": ["Cardiología"]
 }
@@ -274,7 +285,6 @@ GET http://localhost:8081/api/documentos/1?tenantId=clinic-uuid-123
     "apellido": "Admin",
     "email": "juan.perez@clinicacentral.com", // Same email as above
     "usuario": "testadmin",
-    "contrasena": "password",
     "creadorPor": "system"
   }
 }

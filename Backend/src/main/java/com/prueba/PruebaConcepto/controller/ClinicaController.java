@@ -29,7 +29,14 @@ public class ClinicaController {
         return ResponseEntity.ok(clinicaService.listarClinicas());
     }
 
-    @GetMapping("/{dominio}")
+    @GetMapping("/{id}")
+    public ResponseEntity<Clinica> obtenerPorId(@PathVariable String id) {
+        return clinicaService.obtenerPorId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/dominio/{dominio}")
     public ResponseEntity<Clinica> obtenerPorDominio(@PathVariable String dominio) {
         return clinicaService.obtenerPorDominio(dominio)
                 .map(ResponseEntity::ok)

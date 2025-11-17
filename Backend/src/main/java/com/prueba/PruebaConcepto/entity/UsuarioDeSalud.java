@@ -1,6 +1,8 @@
 package com.prueba.PruebaConcepto.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,6 +11,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@JsonIdentityInfo(
+    generator = ObjectIdGenerators.PropertyGenerator.class,
+    property = "id"
+)
 @Setter
 @NoArgsConstructor
 @Getter
@@ -35,6 +41,7 @@ public class UsuarioDeSalud {
     private Clinica clinica;
 
     @OneToMany(mappedBy = "usuario")
+    @JsonIdentityReference(alwaysAsId = true)
     private List<DocumentoClinico> documentos;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
