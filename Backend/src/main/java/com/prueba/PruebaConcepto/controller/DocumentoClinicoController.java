@@ -1,5 +1,6 @@
 package com.prueba.PruebaConcepto.controller;
 
+import com.prueba.PruebaConcepto.Dto.DocumentoClinicoDTO;
 import com.prueba.PruebaConcepto.Dto.DocumentoClinicoParaUsuarioDTO;
 import com.prueba.PruebaConcepto.Dto.DocumentoClinicoRequest;
 import com.prueba.PruebaConcepto.entity.DocumentoClinico;
@@ -67,6 +68,22 @@ public class DocumentoClinicoController {
 
         return ResponseEntity.ok(dto);
     }
+
+    // GET /api/documentos/usuario/777/dto?profesionalId=PROF123&tenantId=CLINICA55
+    // ESTE ENDPOINT ES PARA QUE EL PROFESIONAL DE LA CLINICA PIDA LOS DOCUMENTOS CLINICOS ALOJADOS LOCALMENTE
+    // EN LA CLINICA SIN PASAR POR EL COMPONENTE CENTRAL
+    @GetMapping("/usuario/{usuarioId}/dto")
+    public ResponseEntity<List<DocumentoClinicoDTO>> listarPorUsuarioDTO(
+            @PathVariable Long usuarioId,
+            @RequestParam String profesionalId,
+            @RequestParam String tenantId) {
+
+        List<DocumentoClinicoDTO> dtos =
+                documentoService.listarPorUsuarioDTO(usuarioId, profesionalId, tenantId);
+
+        return ResponseEntity.ok(dtos);
+    }
+
 
 
 }

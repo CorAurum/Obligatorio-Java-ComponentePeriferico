@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.prueba.PruebaConcepto.Dto.DocumentoCentralDTO;
+import com.prueba.PruebaConcepto.Dto.DocumentoClinicoDTO;
 import com.prueba.PruebaConcepto.Dto.DocumentoClinicoParaUsuarioDTO;
 import com.prueba.PruebaConcepto.Dto.DocumentoMapper;
 import com.prueba.PruebaConcepto.entity.*;
@@ -127,6 +128,37 @@ public class DocumentoClinicoService {
         }
 
         return nuevoDoc;
+    }
+
+    public List<DocumentoClinicoDTO> listarPorUsuarioDTO(
+            Long usuarioId,
+            String profesionalId,
+            String clinicaId) {
+
+        // validar profesional
+        ProfesionalDeSalud prof = profesionalRepository.findById(profesionalId).orElse(null);
+        if (prof == null)
+            throw new IllegalArgumentException("Profesional no encontrado");
+
+        // validar que la clínica del profesional coincide con la del tenant
+        if (!prof.getClinica().getId().equals(clinicaId))
+            throw new IllegalArgumentException("El profesional no pertenece a esta clínica");
+
+        // obtener documentos del usuario dentro de esa clínica
+        List<DocumentoClinico> docs =
+                documentoRepository.listarPorUsuarioYClinica(usuarioId, clinicaId);
+
+        // mapear a DTO
+        return docs.stream()
+                .map(d -> new DocumentoClinicoDTO(
+                        d.getFechaCreacion(),
+                        d.getArea(),
+                        d.getDescripcion(),
+                        d.getId(),
+                        d.getProfesional() != null ? d.getProfesional().getNombre() : null,
+                        d.getProfesional() != null ? d.getProfesional().getApellido() : null
+                ))
+                .toList();
     }
 
     // MAPEA EL DOCUMENTO PARA SER DEVUELTO AL CENTRAL Y LEIDO POR EL USUARIO

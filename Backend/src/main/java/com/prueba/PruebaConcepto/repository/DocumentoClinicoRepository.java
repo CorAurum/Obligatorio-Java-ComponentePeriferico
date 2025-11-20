@@ -2,6 +2,8 @@ package com.prueba.PruebaConcepto.repository;
 
 import com.prueba.PruebaConcepto.entity.DocumentoClinico;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -24,4 +26,14 @@ public interface DocumentoClinicoRepository extends JpaRepository<DocumentoClini
     List<DocumentoClinico> findByProfesional_IdProfesionalAndClinicaId(String idProfesional, String clinicaId);
 
     Optional<DocumentoClinico> findByIdAndClinicaId(String id, String clinicaId);
+
+    @Query("""
+    SELECT d FROM DocumentoClinico d
+    WHERE d.usuario.id = :usuarioId
+      AND d.clinica.id = :clinicaId
+""")
+    List<DocumentoClinico> listarPorUsuarioYClinica(
+            @Param("usuarioId") Long usuarioId,
+            @Param("clinicaId") String clinicaId
+    );
 }
