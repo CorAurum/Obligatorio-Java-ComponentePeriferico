@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -55,15 +54,13 @@ public class DocumentoClinicoService {
         this.documentoMapper = documentoMapper;
     }
 
-
     @Value("${periferico.public.base-url}")
     private String perifericoPublicBaseUrl;
-
 
     // CREA EL DOCUMENTO CLINICO
     @Transactional
     public DocumentoClinico crearDocumento(String idUsuario, String idProfesional, DocumentoClinico documento,
-                                           String tenantId) {
+            String tenantId) {
         Clinica clinica = clinicaRepository.findById(tenantId)
                 .orElseThrow(() -> new IllegalArgumentException("Clínica no encontrada con ID: " + tenantId));
 
@@ -103,16 +100,20 @@ public class DocumentoClinicoService {
         // Guardar localmente
         DocumentoClinico nuevoDoc = documentoRepository.save(documento);
 
-        // --- Construir la URL pública que el central usará para pedir el documento completo ---
-        // Se arma usando la base configurada en application.properties: periferico.public.base-url
+        // --- Construir la URL pública que el central usará para pedir el documento
+        // completo ---
+        // Se arma usando la base configurada en application.properties:
+        // periferico.public.base-url
         // Ejemplo resultante: http://Periferico.backend.com/api/documentos/{id}/detalle
         String urlDetalle = perifericoPublicBaseUrl;
-        if (!urlDetalle.endsWith("/")) urlDetalle += "/";
+        if (!urlDetalle.endsWith("/"))
+            urlDetalle += "/";
         urlDetalle += "api/documentos/" + nuevoDoc.getId() + "/detalle";
 
         // --- Mapear a DTO para enviar al central (metadatos) ---
         DocumentoCentralDTO dto = documentoMapper.toCentralDTO(nuevoDoc, String.valueOf(clinica.getId()));
-        // Sobreescribimos/establecemos la urlAlojamiento con la URL de detalle (no es un enlace a almacenamiento)
+        // Sobreescribimos/establecemos la urlAlojamiento con la URL de detalle (no es
+        // un enlace a almacenamiento)
         dto.setUrlAlojamiento(urlDetalle);
 
         try {
@@ -145,8 +146,7 @@ public class DocumentoClinicoService {
             throw new IllegalArgumentException("El profesional no pertenece a esta clínica");
 
         // obtener documentos del usuario dentro de esa clínica
-        List<DocumentoClinico> docs =
-                documentoRepository.listarPorUsuarioYClinica(usuarioId, clinicaId);
+        List<DocumentoClinico> docs = documentoRepository.listarPorUsuarioYClinica(usuarioId, clinicaId);
 
         // mapear a DTO
         return docs.stream()
@@ -156,8 +156,7 @@ public class DocumentoClinicoService {
                         d.getDescripcion(),
                         d.getId(),
                         d.getProfesional() != null ? d.getProfesional().getNombre() : null,
-                        d.getProfesional() != null ? d.getProfesional().getApellido() : null
-                ))
+                        d.getProfesional() != null ? d.getProfesional().getApellido() : null))
                 .toList();
     }
 
@@ -168,7 +167,8 @@ public class DocumentoClinicoService {
 
         // Tenant -> nombre de la clínica
         Clinica clinica = doc.getClinica(); // o doc.getClinica() dependiendo del nombre de campo
-        // Si en tu entidad el nombre del getter es getClinica() o getCentroDeSalud(), adaptá:
+        // Si en tu entidad el nombre del getter es getClinica() o getCentroDeSalud(),
+        // adaptá:
         if (clinica == null) {
             // intentar obtener desde documento.getClinicaId() o lanzar excepción
             out.setTenant("Desconocido");
@@ -201,23 +201,21 @@ public class DocumentoClinicoService {
 
         // Diagnosticos: obtener nombres de grado y estado
         if (doc.getDiagnosticos() != null) {
-            List<DocumentoClinicoParaUsuarioDTO.DiagnosticoDTO> diagDtos =
-                    doc.getDiagnosticos().stream().map(d -> {
-                        DocumentoClinicoParaUsuarioDTO.DiagnosticoDTO dd = new DocumentoClinicoParaUsuarioDTO.DiagnosticoDTO();
-                        // grado de certeza -> nombre
-                        dd.setGradoCerteza(d.getGradoCerteza() != null ? d.getGradoCerteza().getNombre() : null);
-                        // estado problema -> nombre
-                        dd.setEstadoProblema(d.getEstadoProblema() != null ? d.getEstadoProblema().getNombre() : null);
-                        dd.setDescripcion(d.getDescripcion());
-                        return dd;
-                    }).toList();
+            List<DocumentoClinicoParaUsuarioDTO.DiagnosticoDTO> diagDtos = doc.getDiagnosticos().stream().map(d -> {
+                DocumentoClinicoParaUsuarioDTO.DiagnosticoDTO dd = new DocumentoClinicoParaUsuarioDTO.DiagnosticoDTO();
+                // grado de certeza -> nombre
+                dd.setGradoCerteza(d.getGradoCerteza() != null ? d.getGradoCerteza().getNombre() : null);
+                // estado problema -> nombre
+                dd.setEstadoProblema(d.getEstadoProblema() != null ? d.getEstadoProblema().getNombre() : null);
+                dd.setDescripcion(d.getDescripcion());
+                return dd;
+            }).toList();
             documentoDto.setDiagnosticos(diagDtos);
         }
 
         out.setDocumento(documentoDto);
         return out;
     }
-
 
     public List<DocumentoClinico> listarPorClinica(String tenantId) {
         return documentoRepository.findByClinicaId(tenantId);
@@ -238,7 +236,5 @@ public class DocumentoClinicoService {
     public DocumentoClinico listarPorId(String id) {
         return documentoRepository.findById(id).orElse(null);
     }
-
-
 
 }

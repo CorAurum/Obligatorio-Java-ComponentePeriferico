@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 public class UsuarioRequest {
-    private String tenantId;
+    private String dominioSubdominio;
     private String nombres;
     private String apellidos;
     private LocalDate fechaNacimiento;

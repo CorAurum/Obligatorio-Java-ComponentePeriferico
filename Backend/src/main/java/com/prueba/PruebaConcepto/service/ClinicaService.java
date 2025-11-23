@@ -6,7 +6,6 @@ import com.prueba.PruebaConcepto.entity.ProfesionalDeSalud;
 import com.prueba.PruebaConcepto.repository.AdministradorRepository;
 import com.prueba.PruebaConcepto.repository.ClinicaRepository;
 import com.prueba.PruebaConcepto.repository.ProfesionalDeSaludRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,7 +22,9 @@ public class ClinicaService {
 
     private final AdministradorRepository administradorRepository;
 
-    public ClinicaService(ClinicaRepository clinicaRepository, ProfesionalDeSaludRepository profesionalDeSaludRepository, AdministradorRepository administradorRepository) {
+    public ClinicaService(ClinicaRepository clinicaRepository,
+            ProfesionalDeSaludRepository profesionalDeSaludRepository,
+            AdministradorRepository administradorRepository) {
         this.clinicaRepository = clinicaRepository;
         this.profesionalDeSaludRepository = profesionalDeSaludRepository;
         this.administradorRepository = administradorRepository;
@@ -32,6 +33,10 @@ public class ClinicaService {
     public Clinica crearClinica(Clinica clinica) {
         if (clinicaRepository.existsByNombre(clinica.getNombre())) {
             throw new IllegalArgumentException("Ya existe una clínica con ese nombre");
+        }
+
+        if (clinicaRepository.findByDominioSubdominio(clinica.getDominioSubdominio()).isPresent()) {
+            throw new IllegalArgumentException("Ya existe una clínica con ese dominio");
         }
 
         // Generate UUID for the clinic ID (this will be used as tenantId)
@@ -53,33 +58,50 @@ public class ClinicaService {
         return clinicaRepository.findByDominioSubdominio(dominio);
     }
 
-
-    public Optional<String> obtenerClinicaIdPorCedula(String cedula) {
+    public Optional<String> obtenerDominioPorCedula(String cedula) {
 
         // 1. Buscar coincidencia en Profesionales de Salud
-        Optional<ProfesionalDeSalud> profesionalOpt =
-                profesionalDeSaludRepository.findByCedulaIdentidad(cedula);
+        Optional<ProfesionalDeSalud> profesionalOpt = profesionalDeSaludRepository.findByCedulaIdentidad(cedula);
 
         if (profesionalOpt.isPresent()) {
             Clinica clinica = profesionalOpt.get().getClinica();
             if (clinica != null) {
-                return Optional.of(clinica.getId());
+                return Optional.of(clinica.getDominioSubdominio());
             }
         }
 
         // 2. Si no hay profesional, buscar en Administradores
-        Optional<Administrador> adminOpt =
-                administradorRepository.findByCedula(cedula); // o findByEmail si preferís
+        Optional<Administrador> adminOpt = administradorRepository.findByCedula(cedula); // o findByEmail si preferís
 
         if (adminOpt.isPresent()) {
             Clinica clinica = adminOpt.get().getClinica();
             if (clinica != null) {
-                return Optional.of(clinica.getId());
+                return Optional.of(clinica.getDominioSubdominio());
             }
         }
 
         // 3. No existe en ninguna tabla
         return Optional.empty();
+    }
+
+    public String resolverTenantIdPorDominio(String dominio) {
+        return clinicaRepository.findByDominioSubdominio(dominio)
+                .map(Clinica::getId)
+                .orElseThrow(() -> new IllegalArgumentException("Clínica no encontrada con dominio: " + dominio));
+    }
+
+    public com.prueba.PruebaConcepto.Dto.ClinicaDTO obtenerClinicaDTO(String dominio) {
+        Clinica clinica = clinicaRepository.findByDominioSubdominio(dominio)
+                .orElseThrow(() -> new IllegalArgumentException("Clínica no encontrada con dominio: " + dominio));
+
+        com.prueba.PruebaConcepto.Dto.ClinicaDTO dto = new com.prueba.PruebaConcepto.Dto.ClinicaDTO();
+        dto.setId(clinica.getId());
+        dto.setNombre(clinica.getNombre());
+        dto.setDominioSubdominio(clinica.getDominioSubdominio());
+        dto.setDireccion(clinica.getDireccion());
+        dto.setTelefono(clinica.getTelefono());
+        dto.setTipoInstitucion(clinica.getTipoInstitucion());
+        return dto;
     }
 
 }

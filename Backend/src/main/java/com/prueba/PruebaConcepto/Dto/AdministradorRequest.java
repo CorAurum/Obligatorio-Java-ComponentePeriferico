@@ -7,6 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AdministradorRequest {
-    private String tenantId;
+    private String dominioSubdominio;
     private Administrador administrador;
 }

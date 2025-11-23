@@ -4,10 +4,13 @@ C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\controller\ClinicaController.java
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\controller\DocumentoClinicoController.java
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\controller\EspecialidadController.java
+C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\controller\PersonalizacionController.java
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\controller\ProfesionalDeSaludController.java
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\controller\UsuarioDeSaludController.java
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\Dto\AdministradorRequest.java
+C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\Dto\ClinicaDTO.java
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\Dto\DocumentoCentralDTO.java
+C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\Dto\DocumentoClinicoDTO.java
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\Dto\DocumentoClinicoParaUsuarioDTO.java
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\Dto\DocumentoClinicoRequest.java
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\Dto\DocumentoMapper.java
@@ -27,6 +30,7 @@ C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\entity\IdentificadorUsuario.java
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\entity\MotivoConsulta.java
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\entity\Motivos.java
+C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\entity\Personalizacion.java
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\entity\ProfesionalDeSalud.java
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\entity\User.java
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\entity\UsuarioDeSalud.java
@@ -40,6 +44,7 @@ C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\repository\GradoCertezaRepository.java
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\repository\IdentificadorUsuarioRepository.java
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\repository\MotivoConsultaRepository.java
+C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\repository\PersonalizacionRepository.java
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\repository\ProfesionalDeSaludRepository.java
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\repository\UserRepository.java
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\repository\UsuarioDeSaludRepository.java
@@ -48,5 +53,6 @@ C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\service\ClinicaService.java
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\service\DocumentoClinicoService.java
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\service\IdentificadorUsuarioService.java
+C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\service\PersonalizacionService.java
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\service\ProfesionalDeSaludService.java
 C:\Users\joaqu\OneDrive\Documentos\GitHub\Obligatorio-Java-ComponentePeriferico\Backend\src\main\java\com\prueba\PruebaConcepto\service\UsuarioDeSaludService.java

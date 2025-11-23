@@ -1,5 +1,6 @@
 package com.prueba.PruebaConcepto.controller;
 
+import com.prueba.PruebaConcepto.Dto.ClinicaDTO;
 import com.prueba.PruebaConcepto.entity.Clinica;
 import com.prueba.PruebaConcepto.service.ClinicaService;
 import org.springframework.http.ResponseEntity;
@@ -9,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/clinicas")
-//@CrossOrigin(origins = "*")
+// @CrossOrigin(origins = "*")
 public class ClinicaController {
 
     private final ClinicaService clinicaService;
@@ -29,25 +30,24 @@ public class ClinicaController {
         return ResponseEntity.ok(clinicaService.listarClinicas());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Clinica> obtenerPorId(@PathVariable String id) {
-        return clinicaService.obtenerPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/dominio/{dominio}")
-    public ResponseEntity<Clinica> obtenerPorDominio(@PathVariable String dominio) {
-        return clinicaService.obtenerPorDominio(dominio)
+    @GetMapping("/{dominioSubdominio}")
+    public ResponseEntity<Clinica> obtenerPorDominio(@PathVariable String dominioSubdominio) {
+        return clinicaService.obtenerPorDominio(dominioSubdominio)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/averiguar/{CI}")
     public ResponseEntity<String> obtenerPorCI(@PathVariable String CI) {
-        return clinicaService.obtenerClinicaIdPorCedula(CI)
+        return clinicaService.obtenerDominioPorCedula(CI)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/dominio/{dominio}/info")
+    public ResponseEntity<ClinicaDTO> obtenerClinicaInfo(@PathVariable String dominio) {
+        ClinicaDTO dto = clinicaService.obtenerClinicaDTO(dominio);
+        return ResponseEntity.ok(dto);
     }
 
 }

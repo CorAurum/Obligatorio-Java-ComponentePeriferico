@@ -1,6 +1,6 @@
 # Postman Test Payloads
 
-This file contains ready-to-copy JSON payloads for testing the refactored API endpoints with Postman/Yaak. All tenant-scoped endpoints require a `tenantId` parameter.
+This file contains ready-to-copy JSON payloads for testing the domain-based API endpoints with Postman/Yaak. All tenant-scoped endpoints now use `dominioSubdominio` (domain names) instead of UUID `tenantId`.
 
 ## Important Notes for Testing
 
@@ -20,9 +20,9 @@ Warning: Could not sync user to central system: I/O error on POST request for "h
 
 1. **Base URL**: `http://localhost:8081/api/` (adjust port as needed)
 2. **Headers**: Add `Content-Type: application/json` to all requests
-3. **tenantId**: Use an existing clientId from the database for testing (each Clinic is a tenant)
+3. **Domain**: Use clinic domains like `centrovida.enbodi.xyz` for testing (each Clinic has a unique domain)
 
-## 1. Clinica Endpoints (Global - No tenantId needed)
+## 1. Clinica Endpoints (Global - No dominioSubdominio needed)
 
 ### POST /api/clinicas - Create Clinic
 
@@ -55,7 +55,7 @@ GET http://localhost:8081/api/clinicas/clinicacentral.com
 
 ```json
 {
-  "tenantId": "clinic-uuid-123",
+  "dominioSubdominio": "clinicacentral.com",
   "administrador": {
     "nombre": "Juan Carlos",
     "apellido": "Pérez",
@@ -69,7 +69,7 @@ GET http://localhost:8081/api/clinicas/clinicacentral.com
 ### GET /api/administradores - List Administrators
 
 ```
-GET http://localhost:8081/api/administradores?tenantId=clinic-uuid-123
+GET http://localhost:8081/api/administradores?dominioSubdominio=clinicacentral.com
 ```
 
 ## 3. Usuario de Salud Endpoints
@@ -78,7 +78,7 @@ GET http://localhost:8081/api/administradores?tenantId=clinic-uuid-123
 
 ```json
 {
-  "tenantId": "clinic-uuid-123",
+  "dominioSubdominio": "clinicacentral.com",
   "nombres": "María Elena",
   "apellidos": "González Rodríguez",
   "fechaNacimiento": "1990-05-15",
@@ -107,7 +107,7 @@ GET http://localhost:8081/api/administradores?tenantId=clinic-uuid-123
 
 ```json
 {
-  "tenantId": "clinic-uuid-123",
+  "dominioSubdominio": "clinicacentral.com",
   "nombres": "Carlos",
   "apellidos": "Martínez",
   "fechaNacimiento": "1985-12-10",
@@ -120,7 +120,7 @@ GET http://localhost:8081/api/administradores?tenantId=clinic-uuid-123
 ### GET /api/usuarios - List Health Users
 
 ```
-GET http://localhost:8081/api/usuarios?tenantId=clinic-uuid-123
+GET http://localhost:8081/api/usuarios?dominioSubdominio=clinicacentral.com
 ```
 
 ## 4. Profesional de Salud Endpoints
@@ -129,7 +129,7 @@ GET http://localhost:8081/api/usuarios?tenantId=clinic-uuid-123
 
 ```json
 {
-  "tenantId": "clinic-uuid-123",
+  "dominioSubdominio": "clinicacentral.com",
   "profesional": {
     "cedulaIdentidad": "87654321",
     "nombre": "Dra. Ana María",
@@ -145,7 +145,7 @@ GET http://localhost:8081/api/usuarios?tenantId=clinic-uuid-123
 
 ```json
 {
-  "tenantId": "clinic-uuid-123",
+  "dominioSubdominio": "clinicacentral.com",
   "profesional": {
     "cedulaIdentidad": "11223344",
     "nombre": "Dr. Roberto",
@@ -160,7 +160,7 @@ GET http://localhost:8081/api/usuarios?tenantId=clinic-uuid-123
 ### GET /api/profesionales - List Health Professionals
 
 ```
-GET http://localhost:8081/api/profesionales?tenantId=clinic-uuid-123
+GET http://localhost:8081/api/profesionales?dominioSubdominio=clinicacentral.com
 ```
 
 ## 5. Documento Clínico Endpoints
@@ -169,7 +169,7 @@ GET http://localhost:8081/api/profesionales?tenantId=clinic-uuid-123
 
 ```json
 {
-  "tenantId": "clinic-uuid-123",
+  "dominioSubdominio": "clinicacentral.com",
   "idUsuario": "user-uuid-456",
   "idProfesional": 1,
   "documento": {
@@ -203,7 +203,7 @@ GET http://localhost:8081/api/profesionales?tenantId=clinic-uuid-123
 
 ```json
 {
-  "tenantId": "clinic-uuid-123",
+  "dominioSubdominio": "clinicacentral.com",
   "idUsuario": "user-uuid-456",
   "idProfesional": 1,
   "documento": {
@@ -227,25 +227,48 @@ GET http://localhost:8081/api/profesionales?tenantId=clinic-uuid-123
 ### GET /api/documentos - List All Clinical Documents
 
 ```
-GET http://localhost:8081/api/documentos?tenantId=clinic-uuid-123
+GET http://localhost:8081/api/documentos?dominioSubdominio=clinicacentral.com
 ```
 
 ### GET /api/documentos/usuario/{userId} - List Documents by User
 
 ```
-GET http://localhost:8081/api/documentos/usuario/user-uuid-456?tenantId=clinic-uuid-123
+GET http://localhost:8081/api/documentos/usuario/user-uuid-456?dominioSubdominio=clinicacentral.com
 ```
 
 ### GET /api/documentos/profesional/{professionalId} - List Documents by Professional
 
 ```
-GET http://localhost:8081/api/documentos/profesional/1?tenantId=clinic-uuid-123
+GET http://localhost:8081/api/documentos/profesional/1?dominioSubdominio=clinicacentral.com
 ```
 
 ### GET /api/documentos/{documentId} - Get Document by ID
 
 ```
-GET http://localhost:8081/api/documentos/1?tenantId=clinic-uuid-123
+GET http://localhost:8081/api/documentos/1?dominioSubdominio=clinicacentral.com
+```
+
+### PERSONALIZACION PAYLOADS
+
+### Crear (POST /api/personalizacion/{clinicaId})
+
+```json
+{
+  "color": "#3FA9F5",
+  "lema": "Cuidando tu salud siempre",
+  "logo": "https://midominio.com/logo.png"
+}
+```
+
+### Modificar (PATCH /api/personalizacion/{id})
+
+```JSON
+{
+  "color": "NUEVO COLOR",
+  "lema": "NUEVO LEMA",
+  "logo": "NUEVO LOGO"
+}
+
 ```
 
 ## Error Testing Payloads
@@ -267,7 +290,7 @@ GET http://localhost:8081/api/documentos/1?tenantId=clinic-uuid-123
 
 ```json
 {
-  "tenantId": "clinic-uuid-123",
+  "dominioSubdominio": "clinicacentral.com",
   "apellidos": "User",
   "email": "test@example.com"
 }
@@ -279,7 +302,7 @@ GET http://localhost:8081/api/documentos/1?tenantId=clinic-uuid-123
 
 ```json
 {
-  "tenantId": "clinic-uuid-123",
+  "dominioSubdominio": "clinicacentral.com",
   "administrador": {
     "nombre": "Test",
     "apellido": "Admin",
@@ -296,27 +319,27 @@ GET http://localhost:8081/api/documentos/1?tenantId=clinic-uuid-123
 
 Here's a suggested order to test the API:
 
-1. **Create a Clinic** (POST /api/clinicas) - **Response will include generated `id` to use as `tenantId`**
-2. **Create an Administrator** (POST /api/administradores) - Use clinic's `id` as `tenantId`
-3. **Create a Health User** (POST /api/usuarios) - Use clinic's `id` as `tenantId`
-4. **Create a Health Professional** (POST /api/profesionales) - Use clinic's `id` as `tenantId`
-5. **Create a Clinical Document** (POST /api/documentos) - Use clinic's `id` as `tenantId`
-6. **List all resources** (GET endpoints) - Use clinic's `id` as `tenantId`
+1. **Create a Clinic** (POST /api/clinicas) - **Use the `dominioSubdominio` you specified**
+2. **Create an Administrator** (POST /api/administradores) - Use clinic's `dominioSubdominio`
+3. **Create a Health User** (POST /api/usuarios) - Use clinic's `dominioSubdominio`
+4. **Create a Health Professional** (POST /api/profesionales) - Use clinic's `dominioSubdominio`
+5. **Create a Clinical Document** (POST /api/documentos) - Use clinic's `dominioSubdominio`
+6. **List all resources** (GET endpoints) - Use clinic's `dominioSubdominio`
 7. **Test error scenarios**
 
 ### Postman Test Flow Example:
 
-1. **Create Clinic** → Copy the returned `id` from response
-2. **Set Environment Variable**: `tenant_id` = `{{clinic_response.id}}`
-3. **Use `{{tenant_id}}`** in all subsequent requests
+1. **Create Clinic** → Use the `dominioSubdominio` you specified (e.g., "clinicacentral.com")
+2. **Set Environment Variable**: `dominio_subdominio` = `"clinicacentral.com"` (or whatever you used)
+3. **Use `{{dominio_subdominio}}`** in all subsequent requests
 
 ### Expected Clinic Creation Response:
 
 ```json
 {
-  "id": "550e8400-e29b-41d4-a716-446655440000", // ← Use this as tenantId
+  "id": "550e8400-e29b-41d4-a716-446655440000",
   "nombre": "El SUAT",
-  "dominioSubdominio": "elsuat.com",
+  "dominioSubdominio": "elsuat.com", // ← Use this as dominioSubdominio
   "direccion": "Av. por ahi 123",
   "telefono": "+59899123456",
   "email": "contacto@elsuat.com",
@@ -370,7 +393,7 @@ For successful requests, expect:
 
 ## Data Types Reference
 
-- **String IDs**: Use UUID format like "clinic-uuid-123"
+- **Domain Strings**: Use domain format like "clinicacentral.com" or "centrovida.enbodi.xyz"
 - **Long IDs**: Use numbers like 1, 2, 3
 - **Dates**: ISO format "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm:ss"
 - **Booleans**: true/false

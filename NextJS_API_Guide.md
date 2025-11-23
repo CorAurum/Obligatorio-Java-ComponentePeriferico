@@ -1,10 +1,15 @@
 # Next.js API Integration Guide
 
-This guide shows how to send payloads from your Next.js app to the refactored backend API. The backend now requires explicit `tenantId` parameters in all requests since we removed the domain-based tenant filtering.
+This guide shows how to send payloads from the Next.js app to the backend API. The backend now uses `dominioSubdominio` (domain names) instead of UUID `tenantId` for cleaner URLs and better UX.
 
 ## Base URL Structure
 
-Your Next.js app will have URLs like: `periferico.vercel.app/[tenantId]/...`
+Your Next.js app will have URLs like: `periferico.vercel.app/[dominioSubdominio]/...`
+
+Examples:
+
+- `periferico.vercel.app/centrovida.enbodi.xyz/usuarios`
+- `periferico.vercel.app/clinicabc.com/documentos`
 
 Backend API base URL: `http://your-backend-url:8081/api/`
 
@@ -21,7 +26,7 @@ const headers = {
 
 ## API Endpoints
 
-### 1. Clinica Endpoints (Global - No tenantId needed)
+### 1. Clinica Endpoints (Global - No dominioSubdominio needed)
 
 #### Create Clinica
 
@@ -55,6 +60,42 @@ const response = await fetch("http://your-backend/api/clinicas/example.com", {
 });
 ```
 
+#### Find Clinic Domain by User CI
+
+```javascript
+// Returns the dominioSubdominio for a given CI (identity card number)
+const response = await fetch(
+  "http://your-backend/api/clinicas/averiguar/12345678",
+  {
+    method: "GET",
+    headers,
+  }
+);
+
+// Returns: "centrovida.enbodi.xyz"
+```
+
+#### Get Clinica Info (for frontend display)
+
+```javascript
+const response = await fetch(
+  "http://your-backend/api/clinicas/dominio/example.com/info",
+  {
+    method: "GET",
+    headers,
+  }
+);
+
+// Returns: { id, nombre, dominioSubdominio, direccion, telefono, tipoInstitucion }
+```
+
+```javascript
+const response = await fetch("http://your-backend/api/clinicas/example.com", {
+  method: "GET",
+  headers,
+});
+```
+
 ### 2. Administrador Endpoints
 
 #### Create Administrador
@@ -64,7 +105,7 @@ const response = await fetch("http://your-backend/api/administradores", {
   method: "POST",
   headers,
   body: JSON.stringify({
-    tenantId: "clinic-uuid-123", // Required
+    dominioSubdominio: "clinicabc.com", // Required
     administrador: {
       nombre: "Juan",
       apellido: "Pérez",
@@ -76,11 +117,11 @@ const response = await fetch("http://your-backend/api/administradores", {
 });
 ```
 
-#### List Administradores for a Tenant
+#### List Administradores for a Domain
 
 ```javascript
 const response = await fetch(
-  "http://your-backend/api/administradores?tenantId=clinic-uuid-123",
+  "http://your-backend/api/administradores?dominioSubdominio=clinicabc.com",
   {
     method: "GET",
     headers,
@@ -97,7 +138,7 @@ const response = await fetch("http://your-backend/api/usuarios", {
   method: "POST",
   headers,
   body: JSON.stringify({
-    tenantId: "clinic-uuid-123", // Required
+    dominioSubdominio: "clinicabc.com", // Required
     nombres: "María",
     apellidos: "González",
     fechaNacimiento: "1990-05-15",
@@ -117,11 +158,11 @@ const response = await fetch("http://your-backend/api/usuarios", {
 });
 ```
 
-#### List Usuarios for a Tenant
+#### List Usuarios for a Domain
 
 ```javascript
 const response = await fetch(
-  "http://your-backend/api/usuarios?tenantId=clinic-uuid-123",
+  "http://your-backend/api/usuarios?dominioSubdominio=clinicabc.com",
   {
     method: "GET",
     headers,
@@ -138,7 +179,7 @@ const response = await fetch("http://your-backend/api/profesionales", {
   method: "POST",
   headers,
   body: JSON.stringify({
-    tenantId: "clinic-uuid-123", // Required
+    dominioSubdominio: "clinicabc.com", // Required
     profesional: {
       cedulaIdentidad: "12345678",
       nombre: "Dr. Carlos",
@@ -151,11 +192,11 @@ const response = await fetch("http://your-backend/api/profesionales", {
 });
 ```
 
-#### List Profesionales for a Tenant
+#### List Profesionales for a Domain
 
 ```javascript
 const response = await fetch(
-  "http://your-backend/api/profesionales?tenantId=clinic-uuid-123",
+  "http://your-backend/api/profesionales?dominioSubdominio=clinicabc.com",
   {
     method: "GET",
     headers,
@@ -172,7 +213,7 @@ const response = await fetch("http://your-backend/api/documentos", {
   method: "POST",
   headers,
   body: JSON.stringify({
-    tenantId: "clinic-uuid-123", // Required
+    dominioSubdominio: "clinicabc.com", // Required
     idUsuario: "user-uuid-456", // String ID of the user
     idProfesional: 789, // Long ID of the professional
     documento: {
@@ -201,11 +242,11 @@ const response = await fetch("http://your-backend/api/documentos", {
 });
 ```
 
-#### List All Documentos for a Tenant
+#### List All Documentos for a Domain
 
 ```javascript
 const response = await fetch(
-  "http://your-backend/api/documentos?tenantId=clinic-uuid-123",
+  "http://your-backend/api/documentos?dominioSubdominio=clinicabc.com",
   {
     method: "GET",
     headers,
@@ -217,7 +258,7 @@ const response = await fetch(
 
 ```javascript
 const response = await fetch(
-  "http://your-backend/api/documentos/usuario/user-uuid-456?tenantId=clinic-uuid-123",
+  "http://your-backend/api/documentos/usuario/user-uuid-456?dominioSubdominio=clinicabc.com",
   {
     method: "GET",
     headers,
@@ -229,7 +270,7 @@ const response = await fetch(
 
 ```javascript
 const response = await fetch(
-  "http://your-backend/api/documentos/profesional/789?tenantId=clinic-uuid-123",
+  "http://your-backend/api/documentos/profesional/789?dominioSubdominio=clinicabc.com",
   {
     method: "GET",
     headers,
@@ -241,7 +282,7 @@ const response = await fetch(
 
 ```javascript
 const response = await fetch(
-  "http://your-backend/api/documentos/123?tenantId=clinic-uuid-123",
+  "http://your-backend/api/documentos/123?dominioSubdominio=clinicabc.com",
   {
     method: "GET",
     headers,
@@ -251,10 +292,10 @@ const response = await fetch(
 
 ## Next.js Implementation Examples
 
-### Using the tenantId from URL params
+### Using dominioSubdominio from URL params
 
 ```typescript
-// In your Next.js pages: /app/[tenantId]/usuarios/page.tsx
+// In your Next.js pages: /app/[dominioSubdominio]/usuarios/page.tsx
 
 "use client";
 
@@ -263,24 +304,35 @@ import { useEffect, useState } from "react";
 
 export default function UsuariosPage() {
   const params = useParams();
-  const tenantId = params.tenantId as string;
+  const dominioSubdominio = params.dominioSubdominio as string;
+  const [clinicInfo, setClinicInfo] = useState(null);
   const [usuarios, setUsuarios] = useState([]);
 
   useEffect(() => {
+    // First get clinic info for display
+    const fetchClinicInfo = async () => {
+      const response = await fetch(
+        `http://your-backend/api/clinicas/dominio/${dominioSubdominio}/info`
+      );
+      const data = await response.json();
+      setClinicInfo(data);
+    };
+
     const fetchUsuarios = async () => {
       const response = await fetch(
-        `http://your-backend/api/usuarios?tenantId=${tenantId}`
+        `http://your-backend/api/usuarios?dominioSubdominio=${dominioSubdominio}`
       );
       const data = await response.json();
       setUsuarios(data);
     };
 
+    fetchClinicInfo();
     fetchUsuarios();
-  }, [tenantId]);
+  }, [dominioSubdominio]);
 
   const createUsuario = async (usuarioData: any) => {
     const payload = {
-      tenantId,
+      dominioSubdominio,
       ...usuarioData,
     };
 
@@ -295,14 +347,19 @@ export default function UsuariosPage() {
     if (response.ok) {
       // Refresh the list
       const updatedResponse = await fetch(
-        `http://your-backend/api/usuarios?tenantId=${tenantId}`
+        `http://your-backend/api/usuarios?dominioSubdominio=${dominioSubdominio}`
       );
       const updatedData = await updatedResponse.json();
       setUsuarios(updatedData);
     }
   };
 
-  return <div>{/* Your UI components */}</div>;
+  return (
+    <div>
+      <h1>Usuarios de {clinicInfo?.nombre || dominioSubdominio}</h1>
+      {/* Your UI components */}
+    </div>
+  );
 }
 ```
 
@@ -315,12 +372,12 @@ import { useParams } from "next/navigation";
 
 export function useApi() {
   const params = useParams();
-  const tenantId = params.tenantId as string;
+  const dominioSubdominio = params.dominioSubdominio as string;
 
   const apiCall = async (endpoint: string, options: RequestInit = {}) => {
     const url = endpoint.includes("?")
-      ? `${endpoint}&tenantId=${tenantId}`
-      : `${endpoint}?tenantId=${tenantId}`;
+      ? `${endpoint}&dominioSubdominio=${dominioSubdominio}`
+      : `${endpoint}?dominioSubdominio=${dominioSubdominio}`;
 
     return fetch(`http://your-backend/api${url}`, {
       headers: {
@@ -334,7 +391,7 @@ export function useApi() {
   const apiPost = async (endpoint: string, data: any) => {
     return apiCall(endpoint, {
       method: "POST",
-      body: JSON.stringify({ tenantId, ...data }),
+      body: JSON.stringify({ dominioSubdominio, ...data }),
     });
   };
 
@@ -407,12 +464,13 @@ try {
 
 ## Important Notes
 
-1. **tenantId is required** for all tenant-scoped endpoints (everything except `/api/clinicas`)
-2. **tenantId maps to Clinica.id** - make sure you're passing valid clinic IDs
-3. **All POST requests** now wrap the main payload with additional metadata (tenantId, etc.)
-4. **GET requests** use query parameters for tenantId
+1. **dominioSubdominio is required** for all tenant-scoped endpoints (everything except `/api/clinicas`)
+2. **dominioSubdominio maps to Clinica.dominioSubdominio** - this field must be unique across all clinics
+3. **All POST requests** now wrap the main payload with dominioSubdominio
+4. **GET requests** use query parameters for dominioSubdominio
 5. **Dates should be in ISO format** (e.g., "2024-01-15" or "2024-01-15T10:00:00")
 6. **Entity IDs are required** when referencing related entities (like MotivoConsulta, GradoCerteza, etc.)
+7. **URLs are now clean** - use domain names instead of UUIDs: `periferico.vercel.app/centrovida.enbodi.xyz/...`
 
 ## Testing Your Integration
 
@@ -423,12 +481,12 @@ Use tools like Postman or curl to test endpoints before implementing in Next.js:
 curl -X POST http://your-backend/api/usuarios \
   -H "Content-Type: application/json" \
   -d '{
-    "tenantId": "clinic-uuid-123",
+    "dominioSubdominio": "clinicacentral.com",
     "nombres": "Test User",
     "apellidos": "Test",
     "email": "test@example.com"
   }'
 
 # Test listing users
-curl "http://your-backend/api/usuarios?tenantId=clinic-uuid-123"
+curl "http://your-backend/api/usuarios?dominioSubdominio=clinicacentral.com"
 ```

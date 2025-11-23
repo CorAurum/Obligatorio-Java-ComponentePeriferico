@@ -27,6 +27,7 @@ public class Clinica {
     private String telefono;
     private String tipoInstitucion;
 
+    @Column(unique = true)
     private String dominioSubdominio; // ej: "centrovida.enbodi.xyz"
 
     private LocalDateTime fechaAlta;

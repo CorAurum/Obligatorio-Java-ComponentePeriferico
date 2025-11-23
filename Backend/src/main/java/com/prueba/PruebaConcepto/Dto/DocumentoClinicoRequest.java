@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class DocumentoClinicoRequest {
-    private String tenantId;
+    private String dominioSubdominio;
     private String idUsuario;
     private String idProfesional;
     private DocumentoClinico documento;

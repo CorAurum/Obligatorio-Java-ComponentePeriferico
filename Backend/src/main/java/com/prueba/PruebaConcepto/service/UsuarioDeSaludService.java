@@ -42,10 +42,10 @@ public class UsuarioDeSaludService {
     }
 
     @Transactional
-    public UsuarioDeSalud crearUsuarioDesdeRequest(UsuarioRequest request) {
-        Clinica clinica = clinicaRepository.findById(request.getTenantId())
+    public UsuarioDeSalud crearUsuarioDesdeRequest(UsuarioRequest request, String tenantId) {
+        Clinica clinica = clinicaRepository.findById(tenantId)
                 .orElseThrow(
-                        () -> new IllegalArgumentException("Clínica no encontrada con ID: " + request.getTenantId()));
+                        () -> new IllegalArgumentException("Clínica no encontrada con ID: " + tenantId));
 
         UsuarioDeSalud usuario = new UsuarioDeSalud();
         usuario.setNombre(request.getNombres());
