@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 public class CorsFilter implements Filter {
@@ -17,14 +19,23 @@ public class CorsFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
 
-        // Allow requests from localhost:3000 (Next.js dev server)
-        response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
-        response.setHeader("Access-Control-Allow-Origin", "https://hcen-central.vercel.app");
-        response.setHeader("Access-Control-Allow-Credentials", "true");
-        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
-        response.setHeader("Access-Control-Max-Age", "3600");
-        response.setHeader("Access-Control-Allow-Headers",
-                "Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Tenant-Id");
+        String origin = request.getHeader("Origin");
+
+        // Allowed origins
+        List<String> allowedOrigins = Arrays.asList(
+                "http://localhost:3000",
+                "https://hcen-central.vercel.app",
+                "https://backend.web.elasticloud.uy"
+        );
+
+        // If the origin is allowed, set the CORS headers
+        if (allowedOrigins.contains(origin)) {
+            response.setHeader("Access-Control-Allow-Origin", origin);
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+            response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
+            response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Tenant-Id");
+            response.setHeader("Access-Control-Max-Age", "3600");
+        }
 
         // Handle preflight requests
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
