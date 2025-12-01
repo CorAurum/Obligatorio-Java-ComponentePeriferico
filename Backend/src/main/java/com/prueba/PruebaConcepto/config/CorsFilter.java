@@ -19,6 +19,7 @@ public class CorsFilter implements Filter {
 
         // Allow requests from localhost:3000 (Next.js dev server)
         response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+        response.setHeader("Access-Control-Allow-Origin", "https://hcen-central.vercel.app");
         response.setHeader("Access-Control-Allow-Credentials", "true");
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
         response.setHeader("Access-Control-Max-Age", "3600");

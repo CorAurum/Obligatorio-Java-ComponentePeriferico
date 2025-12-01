@@ -15,7 +15,7 @@ public class CentralSyncService {
 
     private final RestTemplate restTemplate;
 
-    @Value("http://localhost:8080/CompC-1.0-SNAPSHOT")
+    @Value("https://backend.web.elasticloud.uy")
     private String centralBaseUrl;
 
     public CentralSyncService() {
