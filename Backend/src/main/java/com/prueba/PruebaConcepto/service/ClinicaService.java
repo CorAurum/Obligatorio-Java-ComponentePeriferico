@@ -35,9 +35,9 @@ public class ClinicaService {
             throw new IllegalArgumentException("Ya existe una clínica con ese nombre");
         }
 
-        if (clinicaRepository.findByDominioSubdominio(clinica.getDominioSubdominio()).isPresent()) {
-            throw new IllegalArgumentException("Ya existe una clínica con ese dominio");
-        }
+//        if (clinicaRepository.findByDominioSubdominio(clinica.getDominioSubdominio()).isPresent()) {
+//            throw new IllegalArgumentException("Ya existe una clínica con ese dominio");
+//        }
 
         // Generate UUID for the clinic ID (this will be used as tenantId)
         clinica.setId(UUID.randomUUID().toString());
