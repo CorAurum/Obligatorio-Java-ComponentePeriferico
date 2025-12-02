@@ -40,7 +40,7 @@ public class ClinicaService {
 //        }
 
         // Generate UUID for the clinic ID (this will be used as tenantId)
-        clinica.setId(UUID.randomUUID().toString());
+       // clinica.setId(UUID.randomUUID().toString()); Mejor que comparta el id con el central para gestionarlo mas facil - 01 DEC 21:19
         clinica.setFechaAlta(LocalDateTime.now());
 
         return clinicaRepository.save(clinica);
