@@ -104,4 +104,17 @@ public class ClinicaService {
         return dto;
     }
 
+
+    // FUNCION PARA MARCAR FECHABAJA EN CLINICA, ESTO NOS INDICA QUE FUE DADA DE BAJA Y QUE ESTA INHABILITADA A NIVEL LOGICO
+    // EL AVISO LO ACTIVA EL CENTRAL MEDIANTE EL ENDPOINT QUE UTILIZA ESTE METODO
+
+    public Clinica marcarFechaBaja(String id, LocalDateTime fechaBaja) {
+        Clinica clinica = clinicaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Clínica no encontrada"));
+
+        clinica.setFechaBaja(fechaBaja);
+        return clinicaRepository.save(clinica);
+    }
+
+
 }

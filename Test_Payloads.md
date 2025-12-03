@@ -178,7 +178,7 @@ GET http://localhost:8081/api/profesionales?dominioSubdominio=clinicacentral.com
     "titulo": "Consulta por Dolor Abdominal",
     "descripcion": "Paciente presenta dolor abdominal agudo en cuadrante inferior derecho desde hace 48 horas. Náuseas y vómitos presentes. Fiebre de 38.2°C.",
     "tipoDocumento": "Consulta",
-    "fechaCreacion": "2024-01-15",
+    "fechaCreacion": "2024-01-15T00:00:00",
     "urlAlojamiento": "https://storage.clinicacentral.com/documents/doc123.pdf",
     "fechaProximaConsultaRecomendada": "2024-01-22T09:00:00",
     "fechaProximaConsultaConfirmada": null,

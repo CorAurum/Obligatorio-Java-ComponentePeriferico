@@ -1,5 +1,6 @@
 package com.prueba.PruebaConcepto.controller;
 
+import com.prueba.PruebaConcepto.Dto.ClinicaBajaDTO;
 import com.prueba.PruebaConcepto.Dto.ClinicaDTO;
 import com.prueba.PruebaConcepto.entity.Clinica;
 import com.prueba.PruebaConcepto.service.ClinicaService;
@@ -49,5 +50,12 @@ public class ClinicaController {
         ClinicaDTO dto = clinicaService.obtenerClinicaDTO(dominio);
         return ResponseEntity.ok(dto);
     }
+
+    @PostMapping("/baja")
+    public ResponseEntity<Clinica> marcarBaja(@RequestBody ClinicaBajaDTO dto) {
+        Clinica actualizada = clinicaService.marcarFechaBaja(dto.getId(), dto.getFechaBaja());
+        return ResponseEntity.ok(actualizada);
+    }
+
 
 }
