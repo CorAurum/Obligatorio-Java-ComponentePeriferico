@@ -39,7 +39,7 @@ public class AdministradorController {
 
 
     @GetMapping("/todos")
-    public ResponseEntity<List<Administrador>> listarTodosLosAdministradores() {
+    public ResponseEntity<List<AdministradorService.AdministradorDTO>> listarTodosLosAdministradores() {
         return ResponseEntity.ok(administradorService.listarTodos());
     }
 
