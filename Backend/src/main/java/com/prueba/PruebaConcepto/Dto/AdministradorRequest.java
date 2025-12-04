@@ -9,4 +9,5 @@ import lombok.Setter;
 public class AdministradorRequest {
     private String dominioSubdominio;
     private Administrador administrador;
+    private String password; // Raw password to be hashed
 }

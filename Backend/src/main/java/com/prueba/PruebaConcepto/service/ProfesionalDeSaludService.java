@@ -20,15 +20,18 @@ public class ProfesionalDeSaludService {
     private final ClinicaRepository clinicaRepository;
     private final EspecialidadRepository especialidadRepository;
     private final CentralSyncService centralSyncService;
+    private final AuthService authService;
 
     public ProfesionalDeSaludService(ProfesionalDeSaludRepository profesionalRepository,
                                      ClinicaRepository clinicaRepository,
                                      EspecialidadRepository especialidadRepository,
-                                     CentralSyncService centralSyncService) {
+                                     CentralSyncService centralSyncService,
+                                     AuthService authService) {
         this.profesionalRepository = profesionalRepository;
         this.clinicaRepository = clinicaRepository;
         this.especialidadRepository = especialidadRepository;
         this.centralSyncService = centralSyncService;
+        this.authService = authService;
     }
 
     @Transactional
@@ -55,7 +58,15 @@ public class ProfesionalDeSaludService {
         profesional.setEspecialidades(especialidades);
         profesional.setIdProfesional(UUID.randomUUID().toString());
 
-        ProfesionalDeSalud guardado = profesionalRepository.save(profesional);
+        // Handle password: if password is provided, hash it; otherwise set a default temporary password
+        String rawPassword = profesional.getPassword();
+        if (rawPassword == null || rawPassword.isEmpty()) {
+            // Set a default temporary password that should be changed
+            rawPassword = "TempPass123!";
+        }
+        
+        // Hash and set the password using AuthService
+        ProfesionalDeSalud guardado = authService.createProfesionalWithHashedPassword(profesional, rawPassword);
 
         // --- preparar DTO para enviar al central ---
         ProfesionalCentralDTO dto = new ProfesionalCentralDTO();
