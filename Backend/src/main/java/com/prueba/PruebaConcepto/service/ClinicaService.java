@@ -112,7 +112,14 @@ public class ClinicaService {
         Clinica clinica = clinicaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Clínica no encontrada"));
 
-        clinica.setFechaBaja(fechaBaja);
+        if (clinica.getFechaBaja() != null) {
+            // FechaBaja is already set → reset it
+            clinica.setFechaBaja(null);
+        } else {
+            // FechaBaja is null → set the new value
+            clinica.setFechaBaja(fechaBaja);
+        }
+
         return clinicaRepository.save(clinica);
     }
 
