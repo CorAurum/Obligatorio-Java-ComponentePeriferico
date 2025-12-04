@@ -36,4 +36,11 @@ public class AdministradorController {
         String tenantId = clinicaService.resolverTenantIdPorDominio(dominioSubdominio);
         return ResponseEntity.ok(administradorService.listarPorClinica(tenantId));
     }
+
+
+    @GetMapping("/todos")
+    public ResponseEntity<List<Administrador>> listarTodosLosAdministradores() {
+        return ResponseEntity.ok(administradorService.listarTodos());
+    }
+
 }

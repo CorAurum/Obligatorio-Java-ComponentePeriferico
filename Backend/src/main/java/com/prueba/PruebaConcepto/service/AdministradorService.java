@@ -35,4 +35,13 @@ public class AdministradorService {
     public List<Administrador> listarPorClinica(String tenantId) {
         return administradorRepository.findByClinicaId(tenantId);
     }
+
+
+    public List<Administrador> listarTodos() {
+        return administradorRepository.findAll();
+    }
+
 }
+
+
+
