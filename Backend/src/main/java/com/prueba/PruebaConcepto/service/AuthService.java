@@ -38,8 +38,8 @@ public class AuthService implements UserDetailsService {
             log.info("Found Administrador with cedula: {}, id: {}", cedula, admin.getId());
             log.info("Admin password hash present: {}", admin.getPassword() != null);
             log.info("Admin password hash (first 20 chars): {}", admin.getPassword() != null ? admin.getPassword().substring(0, Math.min(20, admin.getPassword().length())) : "NULL");
-            String clinicaId = admin.getClinica() != null ? admin.getClinica().getId() : null;
-            log.info("Admin clinicaId: {}", clinicaId);
+            String clinicaId = admin.getClinica() != null ? admin.getClinica().getDominioSubdominio() : null;
+            log.info("Admin clinica dominioSubdominio: {}", clinicaId);
             return UserPrincipal.create(
                 admin.getId(),
                 admin.getCedula(),
@@ -57,8 +57,8 @@ public class AuthService implements UserDetailsService {
         if (profesional != null) {
             log.info("Found ProfesionalDeSalud with cedula: {}, id: {}", cedula, profesional.getIdProfesional());
             log.info("Profesional password hash present: {}", profesional.getPassword() != null);
-            String clinicaId = profesional.getClinica() != null ? profesional.getClinica().getId() : null;
-            log.info("Profesional clinicaId: {}", clinicaId);
+            String clinicaId = profesional.getClinica() != null ? profesional.getClinica().getDominioSubdominio() : null;
+            log.info("Profesional clinica dominioSubdominio: {}", clinicaId);
             return UserPrincipal.create(
                 profesional.getIdProfesional(),
                 profesional.getCedulaIdentidad(),
