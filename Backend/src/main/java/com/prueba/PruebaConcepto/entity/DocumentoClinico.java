@@ -3,6 +3,7 @@ package com.prueba.PruebaConcepto.entity;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -23,22 +24,30 @@ public class DocumentoClinico {
     private String id;
 
     private String area;
+
+    @JsonProperty("area_proximo_control")
     private String areaProximoControl;
 
     private String titulo;
     private String descripcion;
+
+    @JsonProperty("tipo_documento")
     private String TipoDocumento;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
+    @JsonProperty("fecha_creacion")
     private LocalDateTime fechaCreacion;
 
+    @JsonProperty("url_alojamiento")
     private String UrlAlojamiento;
 
     @Column(nullable = true)
+    @JsonProperty("fecha_proxima_consulta_recomendada")
     private LocalDateTime fechaProximaConsultaRecomendada;
 
     @Column(nullable = true)
+    @JsonProperty("fecha_proxima_consulta_confirmada")
     private LocalDateTime fechaProximaConsultaConfirmada;
 
     @ManyToOne
