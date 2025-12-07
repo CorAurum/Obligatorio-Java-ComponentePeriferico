@@ -33,6 +33,8 @@ public class Clinica {
     private String eslogan;
     private String colorPrimario;
     private String colorSecundario;
+
+    @Column(columnDefinition = "TEXT")
     private String logoUrl;
 
     private LocalDateTime fechaAlta;
