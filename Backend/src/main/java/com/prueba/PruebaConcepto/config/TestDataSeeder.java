@@ -61,9 +61,11 @@ public class TestDataSeeder implements CommandLineRunner {
 
         // 1. Create test clinic
         Clinica testClinica = createTestClinica();
+        Clinica smiClinica = createSmiClinica();
 
         // 2. Create test especialidad
         Especialidad testEspecialidad = createTestEspecialidad();
+        seedAdditionalEspecialidades();
 
         // 2b. Seed clinical catalogs used by dropdowns
         seedCatalogosClinicos();
@@ -75,6 +77,10 @@ public class TestDataSeeder implements CommandLineRunner {
         // 4. Create or update test professional (always update password to ensure it's
         // correct)
         createOrUpdateTestProfessional(testClinica, testEspecialidad);
+
+        // 4b. Create or update SMI administrator and professional
+        createOrUpdateSmiAdministrator(smiClinica);
+        createOrUpdateSmiProfessional(smiClinica, testEspecialidad);
 
         // 5. Create test patient and example document
         UsuarioDeSalud paciente = createOrUpdateTestPatient(testClinica);
@@ -119,6 +125,22 @@ public class TestDataSeeder implements CommandLineRunner {
         return clinicaRepository.save(clinica);
     }
 
+    private Clinica createSmiClinica() {
+        Clinica clinica = clinicaRepository.findById("2")
+                .orElse(new Clinica());
+
+        clinica.setId("2");
+        clinica.setNombre("SMI");
+        clinica.setDireccion("Av. SMI 456");
+        clinica.setTelefono("+59899222333");
+        clinica.setDominioSubdominio("smi");
+        clinica.setFechaAlta(LocalDateTime.now());
+        clinica.setFechaBaja(null);
+        clinica.setTipoInstitucion("Privada");
+
+        return clinicaRepository.save(clinica);
+    }
+
     private Especialidad createTestEspecialidad() {
         Especialidad especialidad = especialidadRepository.findById("1")
                 .orElse(new Especialidad());
@@ -128,6 +150,16 @@ public class TestDataSeeder implements CommandLineRunner {
         especialidad.setDescripcion("Especialidad de medicina general para testing");
 
         return especialidadRepository.save(especialidad);
+    }
+
+    private void seedAdditionalEspecialidades() {
+        List<Especialidad> adicionales = Arrays.asList(
+                buildEspecialidad("2", "Cardiología", "Cardiología general"),
+                buildEspecialidad("3", "Pediatría", "Atención pediátrica integral"),
+                buildEspecialidad("4", "Dermatología", "Dermatología clínica"));
+
+        adicionales.forEach(esp -> especialidadRepository.findById(esp.getId())
+                .orElseGet(() -> especialidadRepository.save(esp)));
     }
 
     private void createOrUpdateTestAdministrator(Clinica clinica) {
@@ -180,6 +212,50 @@ public class TestDataSeeder implements CommandLineRunner {
         }
     }
 
+    private void createOrUpdateSmiAdministrator(Clinica clinica) {
+        Administrador admin = administradorRepository.findByCedula("22334455")
+                .orElse(new Administrador());
+
+        admin.setNombre("Sofia");
+        admin.setApellido("Administrador SMI");
+        admin.setCedula("22334455");
+        admin.setEmail("admin@smi.com");
+        admin.setUsuario("smiadmin");
+        admin.setCreadorPor("system");
+        admin.setActivo(true);
+        admin.setRole(Role.ADMINISTRADOR);
+        admin.setClinica(clinica);
+
+        if (admin.getId() != null) {
+            authService.updateAdminPassword(admin, "Password123");
+        } else {
+            authService.createAdminWithHashedPassword(admin, "Password123");
+        }
+    }
+
+    private void createOrUpdateSmiProfessional(Clinica clinica, Especialidad especialidad) {
+        ProfesionalDeSalud profesional = profesionalDeSaludRepository.findByCedulaIdentidad("99887766")
+                .orElse(new ProfesionalDeSalud());
+
+        profesional.setIdProfesional("2");
+        profesional.setCedulaIdentidad("99887766");
+        profesional.setNombre("Dr. Diego");
+        profesional.setApellido("Profesional SMI");
+        profesional.setEmail("diego.profesional@smi.com");
+        profesional.setTelefono("+59899444555");
+        profesional.setActivo(true);
+        profesional.setRole(Role.PROFESIONAL);
+        profesional.setClinica(clinica);
+        profesional.setEspecialidades(Arrays.asList(especialidad));
+
+        if (profesional.getIdProfesional() != null
+                && profesionalDeSaludRepository.existsById(profesional.getIdProfesional())) {
+            authService.updateProfesionalPassword(profesional, "Password123");
+        } else {
+            authService.createProfesionalWithHashedPassword(profesional, "Password123");
+        }
+    }
+
     /**
      * Seed static catalogs required by the frontend dropdowns.
      * Safe to run repeatedly; it only inserts when absent.
@@ -217,6 +293,14 @@ public class TestDataSeeder implements CommandLineRunner {
         g.setId(id);
         g.setNombre(nombre);
         return g;
+    }
+
+    private Especialidad buildEspecialidad(String id, String nombre, String descripcion) {
+        Especialidad e = new Especialidad();
+        e.setId(id);
+        e.setNombre(nombre);
+        e.setDescripcion(descripcion);
+        return e;
     }
 
     private EstadoProblema buildEstado(Long id, String nombre) {
