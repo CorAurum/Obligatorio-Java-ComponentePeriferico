@@ -14,9 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIdentityInfo( // 👈 evita bucles mostrando solo IDs en las referencias
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id"
-)
+        generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Clinica {
 
     @Id
@@ -29,6 +27,15 @@ public class Clinica {
 
     @Column(unique = false)
     private String dominioSubdominio; // ej: "centrovida.enbodi.xyz"
+
+    // Personalización / branding
+    private String nombrePublico;
+    private String eslogan;
+    private String colorPrimario;
+    private String colorSecundario;
+
+    @Column(columnDefinition = "TEXT")
+    private String logoUrl;
 
     private LocalDateTime fechaAlta;
     private LocalDateTime fechaBaja;

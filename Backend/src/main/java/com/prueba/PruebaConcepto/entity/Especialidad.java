@@ -1,8 +1,6 @@
 package com.prueba.PruebaConcepto.entity;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
@@ -15,15 +13,30 @@ public class Especialidad {
 
     private String descripcion;
 
-    public Especialidad() {}
+    public Especialidad() {
+    }
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public String getId() {
+        return id;
+    }
 
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    public void setId(String id) {
+        this.id = id;
+    }
 
-    public String getDescripcion() {return descripcion;}
+    public String getNombre() {
+        return nombre;
+    }
 
-    public void setDescripcion(String descripcion) {this.descripcion = descripcion;}
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
 }

@@ -2,6 +2,7 @@ package com.prueba.PruebaConcepto.controller;
 
 import com.prueba.PruebaConcepto.Dto.ClinicaBajaDTO;
 import com.prueba.PruebaConcepto.Dto.ClinicaDTO;
+import com.prueba.PruebaConcepto.Dto.ClinicaPersonalizacionRequest;
 import com.prueba.PruebaConcepto.entity.Clinica;
 import com.prueba.PruebaConcepto.service.ClinicaService;
 import org.springframework.http.ResponseEntity;
@@ -51,11 +52,17 @@ public class ClinicaController {
         return ResponseEntity.ok(dto);
     }
 
+    @PutMapping("/{id}/personalizacion")
+    public ResponseEntity<Clinica> actualizarPersonalizacion(@PathVariable String id,
+            @RequestBody ClinicaPersonalizacionRequest dto) {
+        Clinica actualizada = clinicaService.actualizarPersonalizacion(id, dto);
+        return ResponseEntity.ok(actualizada);
+    }
+
     @PostMapping("/baja")
     public ResponseEntity<Clinica> marcarBaja(@RequestBody ClinicaBajaDTO dto) {
         Clinica actualizada = clinicaService.marcarFechaBaja(dto.getId(), dto.getFechaBaja());
         return ResponseEntity.ok(actualizada);
     }
-
 
 }

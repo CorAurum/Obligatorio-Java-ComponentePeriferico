@@ -39,4 +39,13 @@ public class ProfesionalDeSaludController {
         String tenantId = clinicaService.resolverTenantIdPorDominio(dominioSubdominio);
         return ResponseEntity.ok(profesionalService.listarPorClinica(tenantId));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProfesionalDeSalud> actualizarProfesional(@PathVariable String id,
+            @RequestBody ProfesionalRequest request) {
+        String tenantId = clinicaService.resolverTenantIdPorDominio(request.dominioSubdominio);
+        ProfesionalDeSalud actualizado = profesionalService.actualizarProfesional(id, request.profesional,
+                request.especialidades, tenantId);
+        return ResponseEntity.ok(actualizado);
+    }
 }

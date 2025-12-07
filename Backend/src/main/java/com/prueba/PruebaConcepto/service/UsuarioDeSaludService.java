@@ -13,7 +13,9 @@ import com.prueba.PruebaConcepto.entity.UsuarioDeSalud;
 import com.prueba.PruebaConcepto.repository.ClinicaRepository;
 import com.prueba.PruebaConcepto.repository.UsuarioDeSaludRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -46,6 +48,22 @@ public class UsuarioDeSaludService {
         Clinica clinica = clinicaRepository.findById(tenantId)
                 .orElseThrow(
                         () -> new IllegalArgumentException("Clínica no encontrada con ID: " + tenantId));
+
+        String ciValor = null;
+        if (request.getIdentificadores() != null) {
+            ciValor = request.getIdentificadores().stream()
+                    .filter(id -> "CI".equalsIgnoreCase(id.getTipo()))
+                    .map(IdentificadorRequest::getValor)
+                    .filter(valor -> valor != null && !valor.isBlank())
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        if (ciValor != null && usuarioRepository.existsIdentificadorInClinica(
+                clinica.getId(), "CI", ciValor.trim())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Ya existe un usuario con esa cédula en esta clínica");
+        }
 
         UsuarioDeSalud usuario = new UsuarioDeSalud();
         usuario.setNombre(request.getNombres());
@@ -86,6 +104,70 @@ public class UsuarioDeSaludService {
 
         centralSyncService.enviarUsuarioAlCentral(dto);
         return nuevo;
+    }
+
+    @Transactional
+    public UsuarioDeSalud actualizarUsuario(Long id, UsuarioRequest request, String tenantId) {
+        Clinica clinica = clinicaRepository.findById(tenantId)
+                .orElseThrow(() -> new IllegalArgumentException("Clínica no encontrada con ID: " + tenantId));
+
+        UsuarioDeSalud usuario = usuarioRepository.findByIdAndClinicaId(id, clinica.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Paciente no encontrado"));
+
+        String ciActual = usuario.getIdentificadores() != null
+                ? usuario.getIdentificadores().stream()
+                        .filter(ident -> "CI".equalsIgnoreCase(ident.getTipo()))
+                        .map(IdentificadorUsuario::getValor)
+                        .filter(valor -> valor != null && !valor.isBlank())
+                        .findFirst()
+                        .orElse(null)
+                : null;
+
+        String ciValor = null;
+        if (request.getIdentificadores() != null) {
+            ciValor = request.getIdentificadores().stream()
+                    .filter(idReq -> "CI".equalsIgnoreCase(idReq.getTipo()))
+                    .map(IdentificadorRequest::getValor)
+                    .filter(valor -> valor != null && !valor.isBlank())
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        String ciNormalizado = ciValor != null ? ciValor.trim() : null;
+        boolean ciCambio = ciNormalizado != null && (ciActual == null || !ciActual.equalsIgnoreCase(ciNormalizado));
+
+        if (ciCambio && usuarioRepository.existsIdentificadorInClinicaExcludingUsuario(
+                clinica.getId(), "CI", ciNormalizado, usuario.getId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Ya existe un usuario con esa cédula en esta clínica");
+        }
+
+        usuario.setNombre(request.getNombres());
+        usuario.setApellido(request.getApellidos());
+        usuario.setFechaNacimiento(request.getFechaNacimiento());
+        usuario.setSexo(request.getSexo());
+        usuario.setDireccion(request.getDireccion());
+        usuario.setEmail(request.getEmail());
+        usuario.setTelefono(request.getTelefono());
+
+        if (request.getIdentificadores() != null) {
+            if (usuario.getIdentificadores() == null) {
+                usuario.setIdentificadores(new ArrayList<>());
+            } else {
+                usuario.getIdentificadores().clear();
+            }
+            for (IdentificadorRequest idReq : request.getIdentificadores()) {
+                IdentificadorUsuario ident = new IdentificadorUsuario();
+                ident.setTipo(idReq.getTipo());
+                ident.setValor(idReq.getValor());
+                ident.setOrigen(idReq.getOrigen());
+                ident.setFechaAlta(LocalDateTime.now());
+                ident.setUsuario(usuario);
+                usuario.getIdentificadores().add(ident);
+            }
+        }
+
+        return usuarioRepository.save(usuario);
     }
 
     public List<UsuarioDeSalud> listarPorClinica(String tenantId) {

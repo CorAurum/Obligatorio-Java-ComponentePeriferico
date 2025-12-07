@@ -59,15 +59,14 @@ public class DocumentoClinicoController {
         return ResponseEntity.ok(doc);
     }
 
-    // ESTE GET DEVUELVE AL CENTRAL UN DTO CON EL DOCUMENTO CLINICO ENTERO
-
+    // ESTE GET DEVUELVE AL CENTRAL UN DTO CON EL DOCUMENTO CLINICO ENTERO.
     @GetMapping("/{id}/detalle")
     public ResponseEntity<DocumentoClinicoParaUsuarioDTO> obtenerDetalleParaCentral(
             @PathVariable String id) {
 
-        // Buscar documento por id (y opcionalmente por tenant si querés controlar
+        // Buscar documento por id (y opcionalmente por tenant controlar
         // multi-tenant)
-        DocumentoClinico doc = documentoService.listarPorId(id /* opción: tenantId si querés */);
+        DocumentoClinico doc = documentoService.listarPorId(id /* opción: tenantId */);
         if (doc == null) {
             return ResponseEntity.status(404).build();
         }
@@ -81,8 +80,8 @@ public class DocumentoClinicoController {
     // GET
     // /api/documentos/usuario/777/dto?profesionalId=PROF123&dominioSubdominio=suat
     // ESTE ENDPOINT ES PARA QUE EL PROFESIONAL DE LA CLINICA PIDA LOS DOCUMENTOS
-    // CLINICOS ALOJADOS LOCALMENTE
-    // EN LA CLINICA SIN PASAR POR EL COMPONENTE CENTRAL
+    // CLINICOS ALOJADOS LOCALMENTE EN LA CLINICA SIN PASAR POR EL COMPONENTE
+    // CENTRAL
     @GetMapping("/usuario/{usuarioId}/dto")
     public ResponseEntity<List<DocumentoClinicoDTO>> listarPorUsuarioDTO(
             @PathVariable Long usuarioId,

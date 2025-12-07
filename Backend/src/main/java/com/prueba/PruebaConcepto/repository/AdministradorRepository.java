@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface AdministradorRepository extends JpaRepository<Administrador, Long> {
     List<Administrador> findByClinicaId(String clinicaId);
     boolean existsByEmail(String email);
-    Optional<Administrador> findByCedula(String cedula);}
+    Optional<Administrador> findByCedula(String cedula);
+    Optional<Administrador> findByUsuario(String usuario);
+    boolean existsByUsuario(String usuario);}

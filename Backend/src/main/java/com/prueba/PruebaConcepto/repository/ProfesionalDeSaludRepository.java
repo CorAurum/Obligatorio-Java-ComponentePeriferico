@@ -11,7 +11,14 @@ import java.util.Optional;
 @Repository
 public interface ProfesionalDeSaludRepository extends JpaRepository<ProfesionalDeSalud, String> {
     List<ProfesionalDeSalud> findByClinicaId(String clinicaId);
+
     boolean existsByEmail(String email);
+
     boolean existsByCedulaIdentidad(String cedulaIdentidad);
+
     Optional<ProfesionalDeSalud> findByCedulaIdentidad(String cedulaIdentidad);
+
+    boolean existsByCedulaIdentidadAndIdProfesionalNot(String cedulaIdentidad, String idProfesional);
+
+    boolean existsByEmailAndIdProfesionalNot(String email, String idProfesional);
 }

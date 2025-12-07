@@ -2,13 +2,14 @@ package com.prueba.PruebaConcepto.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "diagnosticos")
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Diagnostico {
 
     @Id
@@ -30,4 +31,3 @@ public class Diagnostico {
     @JoinColumn(name = "documento_id")
     private DocumentoClinico documentoClinico;
 }
-

@@ -64,7 +64,14 @@ public class DocumentoClinicoService {
         Clinica clinica = clinicaRepository.findById(tenantId)
                 .orElseThrow(() -> new IllegalArgumentException("Clínica no encontrada con ID: " + tenantId));
 
-        UsuarioDeSalud usuario = usuarioRepository.findById(idUsuario)
+        Long usuarioIdLong;
+        try {
+            usuarioIdLong = Long.parseLong(idUsuario);
+        } catch (NumberFormatException ex) {
+            throw new IllegalArgumentException("ID de usuario inválido: " + idUsuario);
+        }
+
+        UsuarioDeSalud usuario = usuarioRepository.findById(usuarioIdLong)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + idUsuario));
 
         ProfesionalDeSalud profesional = profesionalRepository.findById(idProfesional)

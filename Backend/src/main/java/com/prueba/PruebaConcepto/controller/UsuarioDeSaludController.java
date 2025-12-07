@@ -28,6 +28,14 @@ public class UsuarioDeSaludController {
         return ResponseEntity.status(201).body(creado);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<UsuarioDeSalud> actualizarUsuario(@PathVariable Long id,
+            @RequestBody UsuarioRequest request) {
+        String tenantId = clinicaService.resolverTenantIdPorDominio(request.getDominioSubdominio());
+        UsuarioDeSalud actualizado = usuarioService.actualizarUsuario(id, request, tenantId);
+        return ResponseEntity.ok(actualizado);
+    }
+
     @GetMapping
     public ResponseEntity<List<UsuarioDeSalud>> listarUsuarios(@RequestParam String dominioSubdominio) {
         String tenantId = clinicaService.resolverTenantIdPorDominio(dominioSubdominio);

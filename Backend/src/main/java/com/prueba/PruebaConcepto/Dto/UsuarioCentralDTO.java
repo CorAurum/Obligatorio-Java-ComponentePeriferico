@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 // SE USA PARA EL ENVIO DEL USUARIO AL REGISTRARLO PARA EL COMPONENTE CENTRAL
 
-@Getter @Setter
+@Getter
+@Setter
 public class UsuarioCentralDTO {
     private String idLocal;
     private String centroId;
@@ -23,4 +23,3 @@ public class UsuarioCentralDTO {
     private String telefono;
     private List<IdentificadorCentralDTO> identificadores;
 }
-
