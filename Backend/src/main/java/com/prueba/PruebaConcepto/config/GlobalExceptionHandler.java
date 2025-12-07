@@ -7,6 +7,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
 @ControllerAdvice
@@ -19,7 +20,15 @@ public class GlobalExceptionHandler {
         log.error("Error parsing request body: {}", e.getMessage());
         Throwable rootCause = e.getRootCause();
         log.error("Root cause: {}", rootCause != null ? rootCause.getMessage() : "N/A");
-        return ResponseEntity.badRequest().body("Invalid request body format: " + e.getMessage());
+        return ResponseEntity.badRequest()
+                .body("Formato del cuerpo de la solicitud inválido. Verifique la estructura JSON.");
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<String> handleResponseStatusException(ResponseStatusException e) {
+        log.warn("Handled ResponseStatusException: {} {}", e.getStatusCode(), e.getReason());
+        String body = e.getReason() != null ? e.getReason() : e.getMessage();
+        return ResponseEntity.status(e.getStatusCode()).body(body);
     }
 
     @ExceptionHandler(Exception.class)
@@ -30,7 +39,6 @@ public class GlobalExceptionHandler {
         log.error("Exception message: {}", e.getMessage());
         log.error("Stack trace: ", e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("An error occurred: " + e.getMessage());
+                .body("Ocurrió un error interno. Intente nuevamente o contacte al administrador.");
     }
 }
-

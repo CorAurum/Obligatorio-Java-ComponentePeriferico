@@ -13,7 +13,9 @@ import com.prueba.PruebaConcepto.entity.UsuarioDeSalud;
 import com.prueba.PruebaConcepto.repository.ClinicaRepository;
 import com.prueba.PruebaConcepto.repository.UsuarioDeSaludRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -46,6 +48,22 @@ public class UsuarioDeSaludService {
         Clinica clinica = clinicaRepository.findById(tenantId)
                 .orElseThrow(
                         () -> new IllegalArgumentException("Clínica no encontrada con ID: " + tenantId));
+
+        String ciValor = null;
+        if (request.getIdentificadores() != null) {
+            ciValor = request.getIdentificadores().stream()
+                    .filter(id -> "CI".equalsIgnoreCase(id.getTipo()))
+                    .map(IdentificadorRequest::getValor)
+                    .filter(valor -> valor != null && !valor.isBlank())
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        if (ciValor != null && usuarioRepository.existsIdentificadorInClinica(
+                clinica.getId(), "CI", ciValor.trim())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Ya existe un usuario con esa cédula en esta clínica");
+        }
 
         UsuarioDeSalud usuario = new UsuarioDeSalud();
         usuario.setNombre(request.getNombres());

@@ -40,17 +40,17 @@ public class AuthController {
         try {
             if (loginRequest == null) {
                 log.error("LoginRequest is NULL");
-                return ResponseEntity.badRequest().body("Request body is null");
+                return ResponseEntity.badRequest().body("El cuerpo de la solicitud está vacío");
             }
 
             if (loginRequest.getCedula() == null || loginRequest.getCedula().isEmpty()) {
                 log.error("Cedula is NULL or empty");
-                return ResponseEntity.badRequest().body("Cédula is required");
+                return ResponseEntity.badRequest().body("La cédula es obligatoria");
             }
 
             if (loginRequest.getPassword() == null || loginRequest.getPassword().isEmpty()) {
                 log.error("Password is NULL or empty");
-                return ResponseEntity.badRequest().body("Password is required");
+                return ResponseEntity.badRequest().body("La contraseña es obligatoria");
             }
 
             log.info("Attempting authentication for cedula: {}", loginRequest.getCedula());
@@ -103,7 +103,7 @@ public class AuthController {
             log.error("Exception type: {}", e.getClass().getName());
             log.error("Exception message: {}", e.getMessage());
             log.error("Exception stack trace: ", e);
-            return ResponseEntity.badRequest().body("Cédula o contraseña inválida: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Cédula o contraseña inválida");
         }
     }
 
@@ -144,7 +144,7 @@ public class AuthController {
 
         // Tenant check if header provided
         if (tenantHeader != null && clinicaId != null && !clinicaId.equalsIgnoreCase(tenantHeader)) {
-            return ResponseEntity.status(403).body("Tenant mismatch");
+            return ResponseEntity.status(403).body("El tenant no coincide con la clínica del usuario");
         }
 
         if ("ADMINISTRADOR".equalsIgnoreCase(role)) {
