@@ -1,5 +1,6 @@
 package com.prueba.PruebaConcepto.service;
 
+import com.prueba.PruebaConcepto.Dto.ClinicaPersonalizacionRequest;
 import com.prueba.PruebaConcepto.entity.Administrador;
 import com.prueba.PruebaConcepto.entity.Clinica;
 import com.prueba.PruebaConcepto.entity.ProfesionalDeSalud;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class ClinicaService {
@@ -35,12 +35,15 @@ public class ClinicaService {
             throw new IllegalArgumentException("Ya existe una clínica con ese nombre");
         }
 
-//        if (clinicaRepository.findByDominioSubdominio(clinica.getDominioSubdominio()).isPresent()) {
-//            throw new IllegalArgumentException("Ya existe una clínica con ese dominio");
-//        }
+        // if
+        // (clinicaRepository.findByDominioSubdominio(clinica.getDominioSubdominio()).isPresent())
+        // {
+        // throw new IllegalArgumentException("Ya existe una clínica con ese dominio");
+        // }
 
         // Generate UUID for the clinic ID (this will be used as tenantId)
-       // clinica.setId(UUID.randomUUID().toString()); Mejor que comparta el id con el central para gestionarlo mas facil - 01 DEC 21:19
+        // clinica.setId(UUID.randomUUID().toString()); Mejor que comparta el id con el
+        // central para gestionarlo mas facil - 01 DEC 21:19
         clinica.setFechaAlta(LocalDateTime.now());
 
         return clinicaRepository.save(clinica);
@@ -101,11 +104,29 @@ public class ClinicaService {
         dto.setDireccion(clinica.getDireccion());
         dto.setTelefono(clinica.getTelefono());
         dto.setTipoInstitucion(clinica.getTipoInstitucion());
+        dto.setNombrePublico(clinica.getNombrePublico());
+        dto.setEslogan(clinica.getEslogan());
+        dto.setColorPrimario(clinica.getColorPrimario());
+        dto.setColorSecundario(clinica.getColorSecundario());
+        dto.setLogoUrl(clinica.getLogoUrl());
         return dto;
     }
 
+    public Clinica actualizarPersonalizacion(String id, ClinicaPersonalizacionRequest dto) {
+        Clinica clinica = clinicaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Clínica no encontrada"));
 
-    // FUNCION PARA MARCAR FECHABAJA EN CLINICA, ESTO NOS INDICA QUE FUE DADA DE BAJA Y QUE ESTA INHABILITADA A NIVEL LOGICO
+        clinica.setNombrePublico(dto.getNombrePublico());
+        clinica.setEslogan(dto.getEslogan());
+        clinica.setColorPrimario(dto.getColorPrimario());
+        clinica.setColorSecundario(dto.getColorSecundario());
+        clinica.setLogoUrl(dto.getLogoUrl());
+
+        return clinicaRepository.save(clinica);
+    }
+
+    // FUNCION PARA MARCAR FECHABAJA EN CLINICA, ESTO NOS INDICA QUE FUE DADA DE
+    // BAJA Y QUE ESTA INHABILITADA A NIVEL LOGICO
     // EL AVISO LO ACTIVA EL CENTRAL MEDIANTE EL ENDPOINT QUE UTILIZA ESTE METODO
 
     public Clinica marcarFechaBaja(String id, LocalDateTime fechaBaja) {
@@ -122,6 +143,5 @@ public class ClinicaService {
 
         return clinicaRepository.save(clinica);
     }
-
 
 }

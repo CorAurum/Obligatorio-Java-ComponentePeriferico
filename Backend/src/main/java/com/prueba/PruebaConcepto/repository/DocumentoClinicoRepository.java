@@ -7,8 +7,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -28,12 +26,11 @@ public interface DocumentoClinicoRepository extends JpaRepository<DocumentoClini
     Optional<DocumentoClinico> findByIdAndClinicaId(String id, String clinicaId);
 
     @Query("""
-    SELECT d FROM DocumentoClinico d
-    WHERE d.usuario.id = :usuarioId
-      AND d.clinica.id = :clinicaId
-""")
+                SELECT d FROM DocumentoClinico d
+                WHERE d.usuario.id = :usuarioId
+                  AND d.clinica.id = :clinicaId
+            """)
     List<DocumentoClinico> listarPorUsuarioYClinica(
             @Param("usuarioId") Long usuarioId,
-            @Param("clinicaId") String clinicaId
-    );
+            @Param("clinicaId") String clinicaId);
 }

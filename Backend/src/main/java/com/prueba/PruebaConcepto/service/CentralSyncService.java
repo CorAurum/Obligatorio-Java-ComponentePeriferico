@@ -3,8 +3,6 @@ package com.prueba.PruebaConcepto.service;
 import com.prueba.PruebaConcepto.Dto.DocumentoCentralDTO;
 import com.prueba.PruebaConcepto.Dto.ProfesionalCentralDTO;
 import com.prueba.PruebaConcepto.Dto.UsuarioCentralDTO;
-import com.prueba.PruebaConcepto.entity.DocumentoClinico;
-import com.prueba.PruebaConcepto.entity.UsuarioDeSalud;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -31,7 +29,8 @@ public class CentralSyncService {
             HttpEntity<UsuarioCentralDTO> request = new HttpEntity<>(dto, headers);
             restTemplate.exchange(url, HttpMethod.POST, request, Void.class);
         } catch (Exception e) {
-            // Log the error but don't fail the operation - central sync is optional for local testing
+            // Log the error but don't fail the operation - central sync is optional for
+            // local testing
             System.err.println("Warning: Could not sync user to central system: " + e.getMessage());
         }
     }
@@ -45,12 +44,14 @@ public class CentralSyncService {
             HttpEntity<DocumentoCentralDTO> request = new HttpEntity<>(dto, headers);
             restTemplate.exchange(url, HttpMethod.POST, request, Void.class);
         } catch (Exception e) {
-            // Log the error but don't fail the operation - central sync is optional for local testing
+            // Log the error but don't fail the operation - central sync is optional for
+            // local testing
             System.err.println("Warning: Could not sync document to central system: " + e.getMessage());
         }
     }
 
-    // Registrar los profesionales de salud que creen en las clinicas del multi tenant en el central, para control de politicas de acceso etc
+    // Registrar los profesionales de salud que creen en las clinicas del multi
+    // tenant en el central, para control de politicas de acceso etc
     public void enviarProfesionalAlCentral(ProfesionalCentralDTO dto, String centroId) {
         try {
             String url = centralBaseUrl + "/api/profesionales?centroId=" + centroId;
@@ -59,7 +60,8 @@ public class CentralSyncService {
             HttpEntity<ProfesionalCentralDTO> request = new HttpEntity<>(dto, headers);
             restTemplate.exchange(url, HttpMethod.POST, request, Void.class);
         } catch (Exception e) {
-            // Log the error but don't fail the operation - central sync is optional for local testing
+            // Log the error but don't fail the operation - central sync is optional for
+            // local testing
             System.err.println("Warning: Could not sync professional to central system: " + e.getMessage());
         }
     }

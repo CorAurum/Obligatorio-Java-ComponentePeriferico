@@ -3,8 +3,6 @@ package com.prueba.PruebaConcepto.Dto;
 import com.prueba.PruebaConcepto.entity.DocumentoClinico;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-
 @Component
 public class DocumentoMapper {
 
@@ -18,9 +16,8 @@ public class DocumentoMapper {
         dto.setTipoDocumento(doc.getTipoDocumento());
         dto.setArea(doc.getArea());
         dto.setFechaCreacion(doc.getFechaCreacion());
-        dto.setUrlAlojamiento(doc.getUrlAlojamiento() != null ?
-                doc.getUrlAlojamiento() :
-                "https://placeholder.docs/" + doc.getId());
+        dto.setUrlAlojamiento(
+                doc.getUrlAlojamiento() != null ? doc.getUrlAlojamiento() : "https://placeholder.docs/" + doc.getId());
 
         // Asociar relaciones internas (si existen)
         if (doc.getProfesional() != null) {

@@ -16,13 +16,20 @@ public class IdentificadorUsuarioService {
     private final UsuarioDeSaludRepository usuarioRepository;
 
     public IdentificadorUsuarioService(IdentificadorUsuarioRepository identificadorRepository,
-                                       UsuarioDeSaludRepository usuarioRepository) {
+            UsuarioDeSaludRepository usuarioRepository) {
         this.identificadorRepository = identificadorRepository;
         this.usuarioRepository = usuarioRepository;
     }
 
     public IdentificadorUsuario crearIdentificador(String usuarioId, IdentificadorUsuario identificador) {
-        UsuarioDeSalud usuario = usuarioRepository.findById(usuarioId)
+        Long usuarioIdLong;
+        try {
+            usuarioIdLong = Long.parseLong(usuarioId);
+        } catch (NumberFormatException ex) {
+            throw new IllegalArgumentException("ID de usuario inválido: " + usuarioId);
+        }
+
+        UsuarioDeSalud usuario = usuarioRepository.findById(usuarioIdLong)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + usuarioId));
 
         identificador.setUsuario(usuario);
