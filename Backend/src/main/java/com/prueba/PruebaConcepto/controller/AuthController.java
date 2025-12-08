@@ -15,8 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -131,38 +129,33 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentProfile(
+            @RequestParam("cedula") String cedula,
             @RequestHeader(value = "X-Tenant-Id", required = false) String tenantHeader) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof UserPrincipal)) {
-            return ResponseEntity.status(401).body("No autenticado");
+        if (cedula == null || cedula.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("La cédula es obligatoria");
         }
+        String cedulaNormalized = cedula.trim();
 
-        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
-        String role = principal.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "");
-        String clinicaId = principal.getClinicaId();
+        Administrador admin = administradorRepository.findByCedula(cedulaNormalized).orElse(null);
+        if (admin != null) {
+            String clinicaDominio = admin.getClinica() != null ? admin.getClinica().getDominioSubdominio() : null;
+            String clinicaId = admin.getClinica() != null ? String.valueOf(admin.getClinica().getId()) : null;
+            String resolvedClinicaId = clinicaDominio != null ? clinicaDominio : clinicaId;
 
-        // Tenant check if header provided
-        if (tenantHeader != null && clinicaId != null && !clinicaId.equalsIgnoreCase(tenantHeader)) {
-            return ResponseEntity.status(403).body("El tenant no coincide con la clínica del usuario");
-        }
-
-        if ("ADMINISTRADOR".equalsIgnoreCase(role)) {
-            Administrador admin = administradorRepository.findByCedula(principal.getUsername())
-                    .orElse(null);
-            if (admin == null || (clinicaId != null && admin.getClinica() != null
-                    && !(clinicaId.equalsIgnoreCase(admin.getClinica().getDominioSubdominio())
-                            || clinicaId.equals(admin.getClinica().getId())))) {
+            if (tenantHeader != null && resolvedClinicaId != null
+                    && !(resolvedClinicaId.equalsIgnoreCase(tenantHeader)
+                            || (clinicaId != null && tenantHeader.equals(clinicaId)))) {
                 return ResponseEntity.status(404).body("Administrador no encontrado en el tenant");
             }
 
             AuthProfileResponse resp = AuthProfileResponse.builder()
                     .id(String.valueOf(admin.getId()))
-                    .username(admin.getUsuario())
-                    .role(role)
-                    .clinicaId(clinicaId)
+                    .username(admin.getUsuario() != null ? admin.getUsuario() : admin.getCedula())
+                    .role("ADMINISTRADOR")
+                    .clinicaId(resolvedClinicaId)
                     .dominioSubdominio(
-                            admin.getClinica() != null ? admin.getClinica().getDominioSubdominio() : clinicaId)
+                            admin.getClinica() != null ? admin.getClinica().getDominioSubdominio() : resolvedClinicaId)
                     .cedula(admin.getCedula())
                     .displayName(admin.getNombre() + " " + admin.getApellido())
                     .email(admin.getEmail())
@@ -171,12 +164,20 @@ public class AuthController {
                     .especialidades(List.of())
                     .build();
             return ResponseEntity.ok(resp);
-        } else if ("PROFESIONAL".equalsIgnoreCase(role)) {
-            ProfesionalDeSalud profesional = profesionalDeSaludRepository.findByCedulaIdentidad(principal.getUsername())
-                    .orElse(null);
-            if (profesional == null || (clinicaId != null && profesional.getClinica() != null
-                    && !(clinicaId.equalsIgnoreCase(profesional.getClinica().getDominioSubdominio())
-                            || clinicaId.equals(profesional.getClinica().getId())))) {
+        }
+
+        ProfesionalDeSalud profesional = profesionalDeSaludRepository.findByCedulaIdentidad(cedulaNormalized)
+                .orElse(null);
+        if (profesional != null) {
+            String clinicaDominio = profesional.getClinica() != null ? profesional.getClinica().getDominioSubdominio()
+                    : null;
+            String clinicaId = profesional.getClinica() != null ? String.valueOf(profesional.getClinica().getId())
+                    : null;
+            String resolvedClinicaId = clinicaDominio != null ? clinicaDominio : clinicaId;
+
+            if (tenantHeader != null && resolvedClinicaId != null
+                    && !(resolvedClinicaId.equalsIgnoreCase(tenantHeader)
+                            || (clinicaId != null && tenantHeader.equals(clinicaId)))) {
                 return ResponseEntity.status(404).body("Profesional no encontrado en el tenant");
             }
 
@@ -189,15 +190,14 @@ public class AuthController {
             String profesionalId = profesional.getIdProfesional();
 
             AuthProfileResponse resp = AuthProfileResponse.builder()
-                    // Ensure ID is always present; fallback to principal ID if entity field is
-                    // missing
-                    .id(profesionalId != null ? profesionalId : principal.getId())
+                    // Ensure ID is always present; fallback to cedula if entity field is missing
+                    .id(profesionalId != null ? profesionalId : cedulaNormalized)
                     .username(profesional.getCedulaIdentidad())
-                    .role(role)
-                    .clinicaId(clinicaId)
-                    .dominioSubdominio(profesional.getClinica() != null
-                            ? profesional.getClinica().getDominioSubdominio()
-                            : clinicaId)
+                    .role("PROFESIONAL")
+                    .clinicaId(resolvedClinicaId)
+                    .dominioSubdominio(
+                            profesional.getClinica() != null ? profesional.getClinica().getDominioSubdominio()
+                                    : resolvedClinicaId)
                     .cedula(profesional.getCedulaIdentidad())
                     .displayName(profesional.getNombre() + " " + profesional.getApellido())
                     .email(profesional.getEmail())
@@ -206,8 +206,8 @@ public class AuthController {
                     .especialidades(especialidades)
                     .build();
             return ResponseEntity.ok(resp);
-        } else {
-            return ResponseEntity.status(403).body("Rol no soportado: " + role);
         }
+
+        return ResponseEntity.status(404).body("Usuario no encontrado");
     }
 }
