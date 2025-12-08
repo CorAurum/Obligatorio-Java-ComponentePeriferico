@@ -84,6 +84,8 @@ public class WebSecurityConfig {
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .requestMatchers("/api/auth/**").permitAll()
                     .requestMatchers("/api/public/**").permitAll()
+                    // Permitir que el backend central recupere documentos completos sin JWT
+                    .requestMatchers(HttpMethod.GET, "/api/documentos/**/detalle").permitAll()
                     .anyRequest().authenticated());
             http.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         }
