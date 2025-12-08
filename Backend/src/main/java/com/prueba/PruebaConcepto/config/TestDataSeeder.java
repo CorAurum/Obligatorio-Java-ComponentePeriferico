@@ -33,10 +33,10 @@ import java.util.List;
  * Runs automatically on application startup unless "prod" profile is active
  * 
  * Test Credentials:
- * Admin: cedula = "12345678", password = "Password123"
- * Professional: cedula = "87654321", password = "Password123"
- * 
- * To disable: Set spring.profiles.active=prod in application.properties
+ * SUAT Admin: cedula = "12345678", password = "Password123"
+ * SUAT Professional: cedula = "87654321", password = "Password123"
+ * SMI Admin: cedula = "22334455", password = "Password123"
+ * SMI Professional: cedula = "99887766", password = "Password123"
  */
 @Component
 @RequiredArgsConstructor
