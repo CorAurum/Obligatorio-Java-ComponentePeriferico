@@ -39,6 +39,13 @@ public class ProfesionalDeSaludService {
     @Transactional
     public ProfesionalDeSalud crearProfesional(ProfesionalDeSalud profesional, List<String> especialidadesNombres,
             String tenantId) {
+        if (tenantId == null || tenantId.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Se requiere dominioSubdominio/tenant para crear profesional");
+        }
+        if (profesional == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Datos de profesional faltantes");
+        }
         if (profesionalRepository.existsByEmail(profesional.getEmail())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya existe un profesional con ese correo");
         }
@@ -47,13 +54,17 @@ public class ProfesionalDeSaludService {
         }
 
         Clinica clinica = clinicaRepository.findById(tenantId)
-                .orElseThrow(() -> new IllegalArgumentException("Clínica no encontrada con ID: " + tenantId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Clínica no encontrada con ID: " + tenantId));
 
         List<Especialidad> especialidades = new ArrayList<>();
-        for (String nombreEsp : especialidadesNombres) {
-            Especialidad esp = especialidadRepository.findByNombre(nombreEsp)
-                    .orElseThrow(() -> new IllegalArgumentException("Especialidad no encontrada: " + nombreEsp));
-            especialidades.add(esp);
+        if (especialidadesNombres != null) {
+            for (String nombreEsp : especialidadesNombres) {
+                Especialidad esp = especialidadRepository.findByNombre(nombreEsp)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                "Especialidad no encontrada: " + nombreEsp));
+                especialidades.add(esp);
+            }
         }
 
         profesional.setClinica(clinica);
@@ -69,7 +80,13 @@ public class ProfesionalDeSaludService {
         }
 
         // Hash and set the password using AuthService
-        ProfesionalDeSalud guardado = authService.createProfesionalWithHashedPassword(profesional, rawPassword);
+        ProfesionalDeSalud guardado;
+        try {
+            guardado = authService.createProfesionalWithHashedPassword(profesional, rawPassword);
+        } catch (IllegalArgumentException ex) {
+            // Password strength errors from AuthService
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
+        }
 
         // --- preparar DTO para enviar al central ---
         ProfesionalCentralDTO dto = new ProfesionalCentralDTO();

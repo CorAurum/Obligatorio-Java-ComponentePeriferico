@@ -90,7 +90,13 @@ public class WebSecurityConfig {
                 "http://localhost:3000",
                 "http://localhost:3001",
                 "https://hcen-central.vercel.app",
+<<<<<<< Updated upstream
                 "https://backend.web.elasticloud.uy"));
+=======
+                "https://backend.web.elasticloud.uy",
+                "https://p1.enbondi.xyz",
+                "https://nodosperifericos.vercel.app"));
+>>>>>>> Stashed changes
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
