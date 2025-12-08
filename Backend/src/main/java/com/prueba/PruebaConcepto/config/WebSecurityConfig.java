@@ -2,6 +2,7 @@ package com.prueba.PruebaConcepto.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,6 +29,9 @@ import java.util.Arrays;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
+
+    @Value("${app.auth.filter.disable:false}")
+    private boolean disableAuthFilter;
 
     private final JwtUtils jwtUtils;
     private final UserDetailsService userDetailsService;
@@ -69,13 +73,18 @@ public class WebSecurityConfig {
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(restAuthenticationEntryPoint)
-                        .accessDeniedHandler(restAccessDeniedHandler))
-                .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/public/**").permitAll()
-                        .anyRequest().authenticated());
+                        .accessDeniedHandler(restAccessDeniedHandler));
 
-        http.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+        if (disableAuthFilter) {
+            log.warn("JWT authentication disabled via app.auth.filter.disable=true; allowing all requests");
+            http.authorizeHttpRequests(authz -> authz.anyRequest().permitAll());
+        } else {
+            http.authorizeHttpRequests(authz -> authz
+                    .requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers("/api/public/**").permitAll()
+                    .anyRequest().authenticated());
+            http.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+        }
 
         return http.build();
     }
