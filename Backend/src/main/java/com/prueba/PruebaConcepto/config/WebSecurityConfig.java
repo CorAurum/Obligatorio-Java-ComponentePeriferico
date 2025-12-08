@@ -75,20 +75,26 @@ public class WebSecurityConfig {
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(restAuthenticationEntryPoint)
                         .accessDeniedHandler(restAccessDeniedHandler));
-
-        if (disableAuthFilter) {
-            log.warn("JWT authentication disabled via app.auth.filter.disable=true; allowing all requests");
-            http.authorizeHttpRequests(authz -> authz.anyRequest().permitAll());
-        } else {
-            http.authorizeHttpRequests(authz -> authz
-                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                    .requestMatchers("/api/auth/**").permitAll()
-                    .requestMatchers("/api/public/**").permitAll()
-                    // Permitir que el backend central recupere documentos completos sin JWT
-                    .requestMatchers(HttpMethod.GET, "/api/documentos/**/detalle").permitAll()
-                    .anyRequest().authenticated());
-            http.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-        }
+        // if (disableAuthFilter) {
+        // log.warn("JWT authentication disabled via app.auth.filter.disable=true;
+        // allowing all requests");
+        // http.authorizeHttpRequests(authz -> authz.anyRequest().permitAll());
+        // } else {
+        // http.authorizeHttpRequests(authz -> authz
+        // .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+        // .requestMatchers("/api/auth/**").permitAll()
+        // .requestMatchers("/api/public/**").permitAll()
+        // .anyRequest().authenticated());
+        // http.addFilterBefore(authTokenFilter(),
+        // UsernamePasswordAuthenticationFilter.class);
+        // }
+        // Public instance: expose all endpoints, but still parse JWT if provided
+        log.warn(
+                "JWT authentication effectively disabled (all endpoints public), but tokens will be read when present");
+        http.authorizeHttpRequests(authz -> authz.anyRequest().permitAll());
+        // Keep token filter so /auth/me and downstream code can build SecurityContext
+        // when a token is sent
+        http.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
