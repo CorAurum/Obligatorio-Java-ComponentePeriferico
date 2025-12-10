@@ -92,9 +92,9 @@ public class WebSecurityConfig {
                 "http://localhost:8080",
                 "https://hcen-central.vercel.app",
                 "https://backend.web.elasticloud.uy",
-                // Peripheral Frontend URLs
-                "https://periferico-frontend.vercel.app",
-                "https://p1-frontend.vercel.app"));
+                // Periferico Frontend URLs
+                "https://nodosperifericos.vercel.app",
+                "https://p1.enbondi.xyz"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);

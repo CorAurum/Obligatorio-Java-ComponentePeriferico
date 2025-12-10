@@ -111,7 +111,6 @@ public class DocumentoClinicoService {
         // completo ---
         // Se arma usando la base configurada en application.properties:
         // periferico.public.base-url
-        // Ejemplo resultante: http://Periferico.backend.com/api/documentos/{id}/detalle
         String urlDetalle = perifericoPublicBaseUrl;
         if (!urlDetalle.endsWith("/"))
             urlDetalle += "/";
