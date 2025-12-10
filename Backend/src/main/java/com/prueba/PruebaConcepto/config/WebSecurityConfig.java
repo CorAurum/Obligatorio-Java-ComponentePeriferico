@@ -89,14 +89,12 @@ public class WebSecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:3000",
                 "http://localhost:3001",
+                "http://localhost:8080",
                 "https://hcen-central.vercel.app",
-<<<<<<< Updated upstream
-                "https://backend.web.elasticloud.uy"));
-=======
                 "https://backend.web.elasticloud.uy",
-                "https://p1.enbondi.xyz",
-                "https://nodosperifericos.vercel.app"));
->>>>>>> Stashed changes
+                "https://nodosperifericos.vercel.app",
+                "https://p1.enbondi.xyz"));
+
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
