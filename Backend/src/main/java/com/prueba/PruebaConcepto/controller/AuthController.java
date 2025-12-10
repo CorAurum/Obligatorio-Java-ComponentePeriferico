@@ -1,10 +1,8 @@
 package com.prueba.PruebaConcepto.controller;
 
 import com.prueba.PruebaConcepto.Dto.AuthProfileResponse;
-import com.prueba.PruebaConcepto.Dto.LoginRequest;
-import com.prueba.PruebaConcepto.Dto.LoginResponse;
-import com.prueba.PruebaConcepto.config.JwtUtils;
-import com.prueba.PruebaConcepto.config.UserPrincipal;
+import com.prueba.PruebaConcepto.Dto.OidcForwardRequest;
+import com.prueba.PruebaConcepto.Dto.OidcForwardResponse;
 import com.prueba.PruebaConcepto.entity.Administrador;
 import com.prueba.PruebaConcepto.entity.ProfesionalDeSalud;
 import com.prueba.PruebaConcepto.repository.AdministradorRepository;
@@ -12,121 +10,161 @@ import com.prueba.PruebaConcepto.repository.ProfesionalDeSaludRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * AuthController - Handles OIDC authentication forwarded from Central Component
+ * 
+ * This controller receives OIDC authentication data from the Central Component (HCEN)
+ * after a user authenticates via gub.uy. It looks up the user in the local database
+ * and returns the necessary information for redirect to the appropriate portal.
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthenticationManager authenticationManager;
-    private final JwtUtils jwtUtils;
     private final AdministradorRepository administradorRepository;
     private final ProfesionalDeSaludRepository profesionalDeSaludRepository;
 
-    @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
-        log.info("=== LOGIN REQUEST RECEIVED ===");
-        log.info("LoginRequest object: {}", loginRequest);
-        log.info("Cedula: {}", loginRequest != null ? loginRequest.getCedula() : "NULL");
-        log.info("Password: {}", loginRequest != null ? (loginRequest.getPassword() != null ? "***" : "NULL") : "NULL");
+    @Value("${central.api.secret:}")
+    private String centralApiSecret;
 
-        try {
-            if (loginRequest == null) {
-                log.error("LoginRequest is NULL");
-                return ResponseEntity.badRequest().body("El cuerpo de la solicitud está vacío");
+    /**
+     * OIDC Forward endpoint - receives authentication data from Central Component
+     * 
+     * This endpoint is called server-to-server from the Central Backend after
+     * a user authenticates via gub.uy OIDC. It looks up the user by cedula
+     * in both Administrador and ProfesionalDeSalud tables to determine:
+     * 1. If the user exists in this peripheral system
+     * 2. What role they have (ADMINISTRADOR or PROFESIONAL)
+     * 3. Which clinic (dominioSubdominio) they belong to
+     * 
+     * @param secret The shared secret for authentication (X-Central-Secret header)
+     * @param request The OIDC data forwarded from Central
+     * @return OidcForwardResponse with user data or error
+     */
+    @PostMapping("/oidc-forward")
+    public ResponseEntity<?> handleOidcForward(
+            @RequestHeader(value = "X-Central-Secret", required = false) String secret,
+            @RequestBody OidcForwardRequest request) {
+        
+        log.info("=== OIDC FORWARD REQUEST RECEIVED ===");
+        log.info("Cedula: {}", request != null ? request.getCedula() : "NULL");
+        log.info("Has idToken: {}", request != null && request.getIdToken() != null);
+        log.info("Has accessToken: {}", request != null && request.getAccessToken() != null);
+        log.info("======================================");
+        
+        // Validate shared secret if configured
+        if (centralApiSecret != null && !centralApiSecret.isEmpty()) {
+            if (secret == null || !centralApiSecret.equals(secret)) {
+                log.warn("Invalid or missing X-Central-Secret header");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(OidcForwardResponse.error("Invalid authentication"));
             }
-
-            if (loginRequest.getCedula() == null || loginRequest.getCedula().isEmpty()) {
-                log.error("Cedula is NULL or empty");
-                return ResponseEntity.badRequest().body("La cédula es obligatoria");
+        }
+        
+        // Validate request
+        if (request == null) {
+            log.error("Request body is null");
+            return ResponseEntity.badRequest()
+                    .body(OidcForwardResponse.error("Request body is required"));
+        }
+        
+        String cedula = request.getCedula();
+        if (cedula == null || cedula.trim().isEmpty()) {
+            log.error("Cedula is null or empty");
+            return ResponseEntity.badRequest()
+                    .body(OidcForwardResponse.error("Cedula is required"));
+        }
+        
+        cedula = cedula.trim();
+        log.info("Looking up user with cedula: {}", cedula);
+        
+        // First, try to find in Administrador table
+        Administrador admin = administradorRepository.findByCedula(cedula).orElse(null);
+        if (admin != null) {
+            log.info("Found user as ADMINISTRADOR: {} {}", admin.getNombre(), admin.getApellido());
+            
+            String dominioSubdominio = admin.getClinica() != null 
+                    ? admin.getClinica().getDominioSubdominio() 
+                    : null;
+            
+            if (dominioSubdominio == null && admin.getClinica() != null) {
+                dominioSubdominio = String.valueOf(admin.getClinica().getId());
             }
-
-            if (loginRequest.getPassword() == null || loginRequest.getPassword().isEmpty()) {
-                log.error("Password is NULL or empty");
-                return ResponseEntity.badRequest().body("La contraseña es obligatoria");
-            }
-
-            log.info("Attempting authentication for cedula: {}", loginRequest.getCedula());
-
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            loginRequest.getCedula(),
-                            loginRequest.getPassword()));
-
-            log.info("Authentication successful for cedula: {}", loginRequest.getCedula());
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            String jwt = jwtUtils.generateJwtToken(authentication);
-            String refreshToken = jwtUtils.generateRefreshToken(authentication);
-
-            UserPrincipal userDetails = (UserPrincipal) authentication.getPrincipal();
-
-            // Resolve dominioSubdominio from the associated clinic to expose it explicitly
-            // to the frontend
-            String dominioSubdominio = null;
-            Administrador admin = administradorRepository.findByCedula(userDetails.getUsername()).orElse(null);
-            if (admin != null && admin.getClinica() != null) {
-                dominioSubdominio = admin.getClinica().getDominioSubdominio();
-            } else {
-                ProfesionalDeSalud profesional = profesionalDeSaludRepository
-                        .findByCedulaIdentidad(userDetails.getUsername())
-                        .orElse(null);
-                if (profesional != null && profesional.getClinica() != null) {
-                    dominioSubdominio = profesional.getClinica().getDominioSubdominio();
-                }
-            }
-            if (dominioSubdominio == null) {
-                dominioSubdominio = userDetails.getClinicaId(); // fallback to whatever is stored in the principal
-            }
-
-            LoginResponse response = new LoginResponse(
-                    jwt,
-                    refreshToken,
-                    "Bearer",
-                    userDetails.getId(),
-                    userDetails.getUsername(),
-                    userDetails.getAuthorities().iterator().next().getAuthority().replace("ROLE_", ""),
-                    userDetails.getClinicaId(),
-                    dominioSubdominio);
-
-            log.info("Login successful for user: {}", userDetails.getUsername());
+            
+            log.info("Admin clinic dominioSubdominio: {}", dominioSubdominio);
+            
+            OidcForwardResponse response = OidcForwardResponse.builder()
+                    .success(true)
+                    .role("ADMINISTRADOR")
+                    .userId(String.valueOf(admin.getId()))
+                    .cedula(cedula)
+                    .displayName(admin.getNombre() + " " + admin.getApellido())
+                    .dominioSubdominio(dominioSubdominio)
+                    .idToken(request.getIdToken())
+                    .accessToken(request.getAccessToken())
+                    .build();
+            
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("=== LOGIN ERROR ===");
-            log.error("Exception type: {}", e.getClass().getName());
-            log.error("Exception message: {}", e.getMessage());
-            log.error("Exception stack trace: ", e);
-            return ResponseEntity.badRequest().body("Cédula o contraseña inválida");
         }
-    }
-
-    @PostMapping("/refresh")
-    public ResponseEntity<?> refreshToken(@RequestBody String refreshToken) {
-        // Implementation for token refresh - can be enhanced later
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/validate")
-    public ResponseEntity<?> validateToken(@RequestHeader("Authorization") String token) {
-        try {
-            String jwt = token.substring(7); // Remove "Bearer " prefix
-            boolean isValid = jwtUtils.validateJwtToken(jwt);
-
-            if (isValid) {
-                return ResponseEntity.ok().body("Token válido");
-            } else {
-                return ResponseEntity.badRequest().body("Token inválido");
+        
+        // Then, try to find in ProfesionalDeSalud table
+        ProfesionalDeSalud profesional = profesionalDeSaludRepository
+                .findByCedulaIdentidad(cedula).orElse(null);
+        if (profesional != null) {
+            log.info("Found user as PROFESIONAL: {} {}", profesional.getNombre(), profesional.getApellido());
+            
+            String dominioSubdominio = profesional.getClinica() != null 
+                    ? profesional.getClinica().getDominioSubdominio() 
+                    : null;
+            
+            if (dominioSubdominio == null && profesional.getClinica() != null) {
+                dominioSubdominio = String.valueOf(profesional.getClinica().getId());
             }
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Formato de token inválido");
+            
+            log.info("Professional clinic dominioSubdominio: {}", dominioSubdominio);
+            
+            String profesionalId = profesional.getIdProfesional();
+            if (profesionalId == null) {
+                profesionalId = cedula; // Fallback to cedula if no professional ID
+            }
+            
+            OidcForwardResponse response = OidcForwardResponse.builder()
+                    .success(true)
+                    .role("PROFESIONAL")
+                    .userId(profesionalId)
+                    .cedula(cedula)
+                    .displayName(profesional.getNombre() + " " + profesional.getApellido())
+                    .dominioSubdominio(dominioSubdominio)
+                    .idToken(request.getIdToken())
+                    .accessToken(request.getAccessToken())
+                    .build();
+            
+            return ResponseEntity.ok(response);
         }
+        
+        // User not found in either table
+        log.warn("User with cedula {} not found in Administrador or ProfesionalDeSalud tables", cedula);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(OidcForwardResponse.error("Usuario no registrado en el sistema periférico"));
     }
 
+    /**
+     * Get current user profile by cedula
+     * 
+     * This endpoint is used by the frontend to get detailed user profile information
+     * after authentication. It can be called with just the cedula to look up the user.
+     * 
+     * @param cedula The user's cedula
+     * @param tenantHeader Optional tenant header for multi-tenant validation
+     * @return User profile information
+     */
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentProfile(
             @RequestParam("cedula") String cedula,
@@ -137,12 +175,14 @@ public class AuthController {
         }
         String cedulaNormalized = cedula.trim();
 
+        // Try Administrador first
         Administrador admin = administradorRepository.findByCedula(cedulaNormalized).orElse(null);
         if (admin != null) {
             String clinicaDominio = admin.getClinica() != null ? admin.getClinica().getDominioSubdominio() : null;
             String clinicaId = admin.getClinica() != null ? String.valueOf(admin.getClinica().getId()) : null;
             String resolvedClinicaId = clinicaDominio != null ? clinicaDominio : clinicaId;
 
+            // Validate tenant if header is provided
             if (tenantHeader != null && resolvedClinicaId != null
                     && !(resolvedClinicaId.equalsIgnoreCase(tenantHeader)
                             || (clinicaId != null && tenantHeader.equals(clinicaId)))) {
@@ -166,6 +206,7 @@ public class AuthController {
             return ResponseEntity.ok(resp);
         }
 
+        // Then try ProfesionalDeSalud
         ProfesionalDeSalud profesional = profesionalDeSaludRepository.findByCedulaIdentidad(cedulaNormalized)
                 .orElse(null);
         if (profesional != null) {
@@ -175,6 +216,7 @@ public class AuthController {
                     : null;
             String resolvedClinicaId = clinicaDominio != null ? clinicaDominio : clinicaId;
 
+            // Validate tenant if header is provided
             if (tenantHeader != null && resolvedClinicaId != null
                     && !(resolvedClinicaId.equalsIgnoreCase(tenantHeader)
                             || (clinicaId != null && tenantHeader.equals(clinicaId)))) {
@@ -190,7 +232,6 @@ public class AuthController {
             String profesionalId = profesional.getIdProfesional();
 
             AuthProfileResponse resp = AuthProfileResponse.builder()
-                    // Ensure ID is always present; fallback to cedula if entity field is missing
                     .id(profesionalId != null ? profesionalId : cedulaNormalized)
                     .username(profesional.getCedulaIdentidad())
                     .role("PROFESIONAL")
