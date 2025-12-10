@@ -95,6 +95,11 @@ public class WebSecurityConfig {
                 // Periferico Frontend URLs
                 "https://nodosperifericos.vercel.app",
                 "https://p1.enbondi.xyz"));
+                "https://backend.web.elasticloud.uy"));
+                "https://backend.web.elasticloud.uy",
+                "https://p1.enbondi.xyz",
+                "https://nodosperifericos.vercel.app"));
+
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
